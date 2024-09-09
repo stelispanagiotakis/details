@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>My best idea yet, and I came a distant second | Tales Of Details</title>
+<meta name="keywords" content="">
+<meta name="description" content="I&rsquo;ve been using traefik in various contexts over the years.
+It&rsquo;s a bit much at first glance but once you get to know it, it can do anything ( at least anything I&rsquo;ve thrown at it) and it&rsquo;s extensible via plugins.
+The winning feature it had when first introduced was letsencrypt support.
+You could have the ingress controller manage your certificates and inject them in any ingress you instructed it to. I&rsquo;ve been using that feature for a long time.">
+<meta name="author" content="
+stelis">
+<link rel="canonical" href="https://details.systematize.it/details/2026-01-26-my-best-idea-yet-and-i-came-a-distant-second/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.da3211e5ef867bf2b75fd5a6515cfed7195c011e8ab735694e203810a827097b.css" integrity="sha256-2jIR5e&#43;Ge/K3X9WmUVz&#43;1xlcAR6KtzVpTiA4EKgnCXs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://details.systematize.it/assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://details.systematize.it/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://details.systematize.it/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://details.systematize.it/apple-touch-icon.png">
+<link rel="mask-icon" href="https://details.systematize.it/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://details.systematize.it/details/2026-01-26-my-best-idea-yet-and-i-came-a-distant-second/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://details.systematize.it/details/2026-01-26-my-best-idea-yet-and-i-came-a-distant-second/">
+  <meta property="og:site_name" content="Tales Of Details">
+  <meta property="og:title" content="My best idea yet, and I came a distant second">
+  <meta property="og:description" content="I’ve been using traefik in various contexts over the years.
+It’s a bit much at first glance but once you get to know it, it can do anything ( at least anything I’ve thrown at it) and it’s extensible via plugins.
+The winning feature it had when first introduced was letsencrypt support.
+You could have the ingress controller manage your certificates and inject them in any ingress you instructed it to. I’ve been using that feature for a long time.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="details">
+    <meta property="article:published_time" content="2026-01-26T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-01-26T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="My best idea yet, and I came a distant second">
+<meta name="twitter:description" content="I&rsquo;ve been using traefik in various contexts over the years.
+It&rsquo;s a bit much at first glance but once you get to know it, it can do anything ( at least anything I&rsquo;ve thrown at it) and it&rsquo;s extensible via plugins.
+The winning feature it had when first introduced was letsencrypt support.
+You could have the ingress controller manage your certificates and inject them in any ingress you instructed it to. I&rsquo;ve been using that feature for a long time.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Details",
+      "item": "https://details.systematize.it/details/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "My best idea yet, and I came a distant second",
+      "item": "https://details.systematize.it/details/2026-01-26-my-best-idea-yet-and-i-came-a-distant-second/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "My best idea yet, and I came a distant second",
+  "name": "My best idea yet, and I came a distant second",
+  "description": "I\u0026rsquo;ve been using traefik in various contexts over the years.\nIt\u0026rsquo;s a bit much at first glance but once you get to know it, it can do anything ( at least anything I\u0026rsquo;ve thrown at it) and it\u0026rsquo;s extensible via plugins.\nThe winning feature it had when first introduced was letsencrypt support.\nYou could have the ingress controller manage your certificates and inject them in any ingress you instructed it to. I\u0026rsquo;ve been using that feature for a long time.\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "I’ve been using traefik in various contexts over the years.\nIt’s a bit much at first glance but once you get to know it, it can do anything ( at least anything I’ve thrown at it) and it’s extensible via plugins.\nThe winning feature it had when first introduced was letsencrypt support.\nYou could have the ingress controller manage your certificates and inject them in any ingress you instructed it to. I’ve been using that feature for a long time.\nRecently, one of the projects was getting a bit more serious, so I thought I’d look into reliability a bit more.\nNaturally, my first thought was to run 2 traefik replicas to have HA.\nBut I’d already been using letsencrypt support, so I had a persistent volume mounted to keep the acme.json file it uses to store certificates.\nThis would have to be mounted to both replicas. How to do that?\nReadWriteMany PVC: it was not available ( actually it was, but my provider’s implementation was giving me weird errors, so I jumped at the chance to remove it rather than build on it.). Object storage: I could add a shared volume backed by object storage the proper way, with a CSI driver. I found one that seems best maintained, then noticed the remounting issue, which seems interesting enough to deter me from tethering my ingress to it. We could have a sidecar mounted to each replica that syncs with object storage but this too seems like too much work for something like this. Put a pin on that and let’s revisit only if needed. Since it’s just one relatively small file, I could just do away with storage and sync it to a db. But this too needs quite a bit of work, let’s not spend so much time if we have other options. Then came the great idea.\nIf you need a DB, you have one built into k8s and you also have a system to authenticate with it and a cli to facilitate that (etcd is accessible via kubectl).\nSo I could store the info in a k8s object that would then be stored to etcd. It’s a cert so that would be a k8s secret, right? Create a traefik sidecar that has an RBAC role to only get/patch/update one specific k8s secret (if you also want to create you can’t limit to specific resourceNames) and have it do that every time there is a change to the acme.json file. Yep, that’ll work and it’ll be the easiest and most robust of the existing solutions. And come to think of it, this would be a nice little side-project. I bet everyone would need a tool to manage their certif…\nAnd then it hit me… I’d just described cert-manager.\nOh, well, let’s use that then :-D\n",
+  "wordCount" : "468",
+  "inLanguage": "en",
+  "datePublished": "2026-01-26T00:00:00Z",
+  "dateModified": "2026-01-26T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": {"email":"stelis@systematize.it","name":"stelis"}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://details.systematize.it/details/2026-01-26-my-best-idea-yet-and-i-came-a-distant-second/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tales Of Details",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://details.systematize.it/assets/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://details.systematize.it/" accesskey="h" title="Tales Of Details (Alt + H)">Tales Of Details</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://details.systematize.it/">Home</a>&nbsp;»&nbsp;<a href="https://details.systematize.it/details/">Details</a></div>
+    <h1 class="post-title entry-hint-parent">
+      My best idea yet, and I came a distant second
+    </h1>
+    <div class="post-meta"><span title='2026-01-26 00:00:00 +0000 UTC'>January 26, 2026</span>&nbsp;·&nbsp;<span>
+<a href="mailto:stelis@systematize.it">stelis</a></span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>I&rsquo;ve been using <code>traefik</code> in various contexts over the years.<br>
+It&rsquo;s a bit much at first glance but once you get to know it, it can do anything ( at least anything I&rsquo;ve thrown at it) and it&rsquo;s extensible via plugins.<br>
+The winning feature it had when first introduced was <code>letsencrypt</code> support.<br>
+You could have the ingress controller manage your certificates and inject them in any ingress you instructed it to. I&rsquo;ve been using that feature for a long time.</p>
+<p>Recently, one of the projects was getting a bit more serious, so I thought I&rsquo;d look into reliability a bit more.<br>
+Naturally, my first thought was to run 2 traefik replicas to have HA.<br>
+But I&rsquo;d already been using <code>letsencrypt</code> support, so I had a persistent volume mounted to keep the <code>acme.json</code> file it uses to store certificates.<br>
+This would have to be mounted to both replicas. How to do that?</p>
+<ul>
+<li><code>ReadWriteMany PVC</code>: it was not available ( actually it was, but my provider&rsquo;s implementation was giving me weird errors, so I jumped at the chance to remove it rather than build on it.).</li>
+<li><code>Object storage</code>: I could add a shared volume <a href="https://details.systematize.it/2024/09/07/s3-can-be-persistent/">backed by object storage</a> the proper way, with a CSI driver. I found one that <a href="https://github.com/veloxpack/csi-driver-rclone">seems best maintained</a>, then noticed the <a href="https://github.com/veloxpack/csi-driver-rclone/issues/58">remounting issue</a>, which seems interesting enough to deter me from tethering my ingress to it.</li>
+<li>We could have a sidecar mounted to each replica that <strong>syncs with object storage</strong> but this too seems like too much work for something like this. Put a pin on that and let&rsquo;s revisit only if needed.</li>
+<li>Since it&rsquo;s just one relatively small file, I could just do away with storage and <strong>sync it to a db</strong>. But this too needs quite a bit of work, let&rsquo;s not spend so much time if we have other options.</li>
+</ul>
+<p>Then came the great idea.<br>
+If you need a DB, you have one built into k8s and you also have a system to authenticate with it and a cli to facilitate that (<code>etcd</code> is <em>accessible</em> via <code>kubectl</code>).<br>
+So I could store the info in a k8s object that would then be stored to etcd. It&rsquo;s a cert so that would be a k8s secret, right? Create a traefik sidecar that has an RBAC role to only <code>get/patch/update</code> one specific k8s secret (if you also want to <code>create</code> you can&rsquo;t limit to specific resourceNames) and have it do that every time there is a change to the <code>acme.json</code> file. Yep, that&rsquo;ll work and it&rsquo;ll be the easiest and most robust of the existing solutions. And come to think of it, this would be a nice little side-project. I bet everyone would need a tool to manage their certif&hellip;</p>
+<p>And then it hit me&hellip; I&rsquo;d just described <code>cert-manager</code>.</p>
+<p>Oh, well, let&rsquo;s use that then :-D</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://details.systematize.it/details/2026-01-28-mid-term-alignment/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Mid-term alignment</span>
+  </a>
+  <a class="next" href="https://details.systematize.it/details/2026-01-20-intuition-is-great-and-dangerous/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Intuition is great... and dangerous</span>
+  </a>
+</nav>
+
+  </footer><script src="https://utteranc.es/client.js"
+        repo="stelispanagiotakis/details"
+        issue-term="pathname"
+        theme="preferred-color-scheme"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://details.systematize.it/">Tales Of Details</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

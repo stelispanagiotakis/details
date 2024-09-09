@@ -1,0 +1,5 @@
+- Trim trailing spaces (including title/date lines)
+- Add language to code fences (bash, ini, text, etc.).
+- tags
+- search
+- comments

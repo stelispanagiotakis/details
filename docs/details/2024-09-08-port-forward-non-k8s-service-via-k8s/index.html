@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Port-forward non k8s service via k8s | Tales Of Details</title>
+<meta name="keywords" content="">
+<meta name="description" content="So, suppose my app that runs on k8s needs a postgres db to write to.
+I&rsquo;ll set up an RDS that is reachable only within my VPC.
+Then a dev needs to connect to that DB from their local to troubleshoot some weird issue.
+What do I do?
+The tried-and-true solution is of course some VPN.
+If you have the time and resources to do it right, you&rsquo;re golden.
+If not, a VPN is a surefire way to headaches. (new authentication pool, 2FA , maintenance, split DNS, slow connection speeds etc)">
+<meta name="author" content="
+stelis">
+<link rel="canonical" href="https://details.systematize.it/details/2024-09-08-port-forward-non-k8s-service-via-k8s/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.da3211e5ef867bf2b75fd5a6515cfed7195c011e8ab735694e203810a827097b.css" integrity="sha256-2jIR5e&#43;Ge/K3X9WmUVz&#43;1xlcAR6KtzVpTiA4EKgnCXs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://details.systematize.it/assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://details.systematize.it/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://details.systematize.it/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://details.systematize.it/apple-touch-icon.png">
+<link rel="mask-icon" href="https://details.systematize.it/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://details.systematize.it/details/2024-09-08-port-forward-non-k8s-service-via-k8s/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://details.systematize.it/details/2024-09-08-port-forward-non-k8s-service-via-k8s/">
+  <meta property="og:site_name" content="Tales Of Details">
+  <meta property="og:title" content="Port-forward non k8s service via k8s">
+  <meta property="og:description" content="So, suppose my app that runs on k8s needs a postgres db to write to.
+I’ll set up an RDS that is reachable only within my VPC.
+Then a dev needs to connect to that DB from their local to troubleshoot some weird issue.
+What do I do?
+The tried-and-true solution is of course some VPN.
+If you have the time and resources to do it right, you’re golden.
+If not, a VPN is a surefire way to headaches. (new authentication pool, 2FA , maintenance, split DNS, slow connection speeds etc)">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="details">
+    <meta property="article:published_time" content="2024-09-08T00:00:00+00:00">
+    <meta property="article:modified_time" content="2024-09-08T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Port-forward non k8s service via k8s">
+<meta name="twitter:description" content="So, suppose my app that runs on k8s needs a postgres db to write to.
+I&rsquo;ll set up an RDS that is reachable only within my VPC.
+Then a dev needs to connect to that DB from their local to troubleshoot some weird issue.
+What do I do?
+The tried-and-true solution is of course some VPN.
+If you have the time and resources to do it right, you&rsquo;re golden.
+If not, a VPN is a surefire way to headaches. (new authentication pool, 2FA , maintenance, split DNS, slow connection speeds etc)">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Details",
+      "item": "https://details.systematize.it/details/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Port-forward non k8s service via k8s",
+      "item": "https://details.systematize.it/details/2024-09-08-port-forward-non-k8s-service-via-k8s/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Port-forward non k8s service via k8s",
+  "name": "Port-forward non k8s service via k8s",
+  "description": "So, suppose my app that runs on k8s needs a postgres db to write to.\nI\u0026rsquo;ll set up an RDS that is reachable only within my VPC.\nThen a dev needs to connect to that DB from their local to troubleshoot some weird issue.\nWhat do I do?\nThe tried-and-true solution is of course some VPN.\nIf you have the time and resources to do it right, you\u0026rsquo;re golden.\nIf not, a VPN is a surefire way to headaches. (new authentication pool, 2FA , maintenance, split DNS, slow connection speeds etc)\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "So, suppose my app that runs on k8s needs a postgres db to write to.\nI’ll set up an RDS that is reachable only within my VPC.\nThen a dev needs to connect to that DB from their local to troubleshoot some weird issue.\nWhat do I do?\nThe tried-and-true solution is of course some VPN.\nIf you have the time and resources to do it right, you’re golden.\nIf not, a VPN is a surefire way to headaches. (new authentication pool, 2FA , maintenance, split DNS, slow connection speeds etc)\nCan’t I just fake it for simple non-prod scenarios?\nWhy don’t I just port-forward the DB through k8s, just as I port-forward k8s services?\nWell, you can only forward services that have endpoints within k8s.\nOK, I’ll manually create the endpoints for a service.\nBut that’ll only work if you can use an IP for that external service. You can’t use CNAMEs with Endpoints. And for RDS you can’t rely on IPs.\nYou get a CNAME that does not promise to resolve to the same IPs. Being realistic, the private IP of the RDS instance may never change, but that’s a risk you’ll have to evaluate.\nSo? Is there a better alternative?\nThere is an alternative. Whether it is better, or even good, is left to the reader.\nAs with most things we spend time thinking and building, there’s a linux command that’s been doing what you need for quite some time. In this case it’s simpleproxy.\nThe syntax is intuitive\nsimpleproxy -d -L 5432 -R your-rds-cname.rds.amazonaws.com:5432 This will effectively proxy any requests to port 5432 of the host where the command is run to your RDS instance’s port.\nNow, let’s put that in a container and deploy it in a k8s cluster that has access to the RDS and expose its port 5432 via a service\nIf we now port-forward the service via k8s, we can access the private RDS instance via local.\nnote: feedback received, will be spending some time with socat\n",
+  "wordCount" : "335",
+  "inLanguage": "en",
+  "datePublished": "2024-09-08T00:00:00Z",
+  "dateModified": "2024-09-08T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": {"email":"stelis@systematize.it","name":"stelis"}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://details.systematize.it/details/2024-09-08-port-forward-non-k8s-service-via-k8s/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tales Of Details",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://details.systematize.it/assets/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://details.systematize.it/" accesskey="h" title="Tales Of Details (Alt + H)">Tales Of Details</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://details.systematize.it/">Home</a>&nbsp;»&nbsp;<a href="https://details.systematize.it/details/">Details</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Port-forward non k8s service via k8s
+    </h1>
+    <div class="post-meta"><span title='2024-09-08 00:00:00 +0000 UTC'>September 8, 2024</span>&nbsp;·&nbsp;<span>
+<a href="mailto:stelis@systematize.it">stelis</a></span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>So, suppose my app that runs on k8s needs a postgres db to write to.<br>
+I&rsquo;ll set up an RDS that is reachable only within my VPC.<br>
+Then a dev needs to connect to that DB from their local to troubleshoot some weird issue.<br>
+What do I do?<br>
+The tried-and-true solution is of course some VPN.<br>
+If you have the time and resources to do it right, you&rsquo;re golden.<br>
+If not, a VPN is a surefire way to headaches. (new authentication pool, 2FA , maintenance, split DNS, slow connection speeds etc)</p>
+<p>Can&rsquo;t I just fake it for simple non-prod scenarios?</p>
+<p>Why don&rsquo;t I just port-forward the DB through k8s, just as I port-forward k8s services?<br>
+Well, you can only forward services that have endpoints within k8s.<br>
+OK, I&rsquo;ll manually create the <a href="https://kubernetes.io/docs/concepts/services-networking/service/#endpoints">endpoints</a> for a service.<br>
+But that&rsquo;ll only work if you can use an IP for that external service. You can&rsquo;t use CNAMEs with Endpoints. And for RDS you can&rsquo;t rely on IPs.<br>
+You get a CNAME that does not promise to resolve to the same IPs. Being realistic, the private IP of the RDS instance may never change, but that&rsquo;s a risk you&rsquo;ll have to evaluate.</p>
+<p>So? Is there a better alternative?<br>
+There is an alternative. Whether it is better, or even good, is left to the reader.</p>
+<p>As with most things we spend time thinking and building, there&rsquo;s a linux command that&rsquo;s been doing what you need for quite some time. In this case it&rsquo;s <a href="https://manpages.ubuntu.com/manpages/trusty/man1/simpleproxy.1.html">simpleproxy</a>.</p>
+<p>The syntax is intuitive</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>simpleproxy -d -L <span style="color:#ae81ff">5432</span> -R your-rds-cname.rds.amazonaws.com:5432
+</span></span></code></pre></div><p>This will effectively proxy any requests to port 5432 of the host where the command is run to your RDS instance&rsquo;s port.<br>
+Now, let&rsquo;s put that in a container and deploy it in a k8s cluster that has access to the RDS and expose its port 5432 via a service</p>
+<p>If we now port-forward the service via k8s, we can access the private RDS instance via local.</p>
+<blockquote>
+<p>note: feedback received, will be spending some time with <a href="https://www.redhat.com/sysadmin/getting-started-socat">socat</a></p>
+</blockquote>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://details.systematize.it/details/2024-09-08-linguistic-details/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Linguistic Details</span>
+  </a>
+  <a class="next" href="https://details.systematize.it/details/2024-09-08-whats-the-most-you-can-make-of-an-olivetin/">
+    <span class="title">Next »</span>
+    <br>
+    <span>What&#39;s the most you can make of an olivetin?</span>
+  </a>
+</nav>
+
+  </footer><script src="https://utteranc.es/client.js"
+        repo="stelispanagiotakis/details"
+        issue-term="pathname"
+        theme="preferred-color-scheme"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://details.systematize.it/">Tales Of Details</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

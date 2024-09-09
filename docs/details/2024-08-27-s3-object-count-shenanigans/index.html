@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>S3 Object Count shenanigans | Tales Of Details</title>
+<meta name="keywords" content="">
+<meta name="description" content="Suppose you have access to an S3 bucket in some AWS account.
+You need to get the files to another bucket (same or different AWS account I think makes no difference to my eventual point)
+You do your due diligence and count the objects in the origin bucket
+aws s3 ls s3://originBucket --recursive --summarize | grep &#34;Total Objects:&#34;
+You get the total count and start your sync
+aws s3 sync s3://originBucket s3://destinationBucket --delete --exact-timestamps
+Great. It completed successfully. Now let&rsquo;s count the objects in the destination bucket">
+<meta name="author" content="
+stelis">
+<link rel="canonical" href="https://details.systematize.it/details/2024-08-27-s3-object-count-shenanigans/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.da3211e5ef867bf2b75fd5a6515cfed7195c011e8ab735694e203810a827097b.css" integrity="sha256-2jIR5e&#43;Ge/K3X9WmUVz&#43;1xlcAR6KtzVpTiA4EKgnCXs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://details.systematize.it/assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://details.systematize.it/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://details.systematize.it/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://details.systematize.it/apple-touch-icon.png">
+<link rel="mask-icon" href="https://details.systematize.it/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://details.systematize.it/details/2024-08-27-s3-object-count-shenanigans/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://details.systematize.it/details/2024-08-27-s3-object-count-shenanigans/">
+  <meta property="og:site_name" content="Tales Of Details">
+  <meta property="og:title" content="S3 Object Count shenanigans">
+  <meta property="og:description" content="Suppose you have access to an S3 bucket in some AWS account.
+You need to get the files to another bucket (same or different AWS account I think makes no difference to my eventual point)
+You do your due diligence and count the objects in the origin bucket
+aws s3 ls s3://originBucket --recursive --summarize | grep &#34;Total Objects:&#34; You get the total count and start your sync
+aws s3 sync s3://originBucket s3://destinationBucket --delete --exact-timestamps Great. It completed successfully. Now let’s count the objects in the destination bucket">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="details">
+    <meta property="article:published_time" content="2024-08-27T00:00:00+00:00">
+    <meta property="article:modified_time" content="2024-08-27T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="S3 Object Count shenanigans">
+<meta name="twitter:description" content="Suppose you have access to an S3 bucket in some AWS account.
+You need to get the files to another bucket (same or different AWS account I think makes no difference to my eventual point)
+You do your due diligence and count the objects in the origin bucket
+aws s3 ls s3://originBucket --recursive --summarize | grep &#34;Total Objects:&#34;
+You get the total count and start your sync
+aws s3 sync s3://originBucket s3://destinationBucket --delete --exact-timestamps
+Great. It completed successfully. Now let&rsquo;s count the objects in the destination bucket">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Details",
+      "item": "https://details.systematize.it/details/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "S3 Object Count shenanigans",
+      "item": "https://details.systematize.it/details/2024-08-27-s3-object-count-shenanigans/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "S3 Object Count shenanigans",
+  "name": "S3 Object Count shenanigans",
+  "description": "Suppose you have access to an S3 bucket in some AWS account.\nYou need to get the files to another bucket (same or different AWS account I think makes no difference to my eventual point)\nYou do your due diligence and count the objects in the origin bucket\naws s3 ls s3://originBucket --recursive --summarize | grep \u0026#34;Total Objects:\u0026#34; You get the total count and start your sync\naws s3 sync s3://originBucket s3://destinationBucket --delete --exact-timestamps Great. It completed successfully. Now let\u0026rsquo;s count the objects in the destination bucket\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "Suppose you have access to an S3 bucket in some AWS account.\nYou need to get the files to another bucket (same or different AWS account I think makes no difference to my eventual point)\nYou do your due diligence and count the objects in the origin bucket\naws s3 ls s3://originBucket --recursive --summarize | grep \"Total Objects:\" You get the total count and start your sync\naws s3 sync s3://originBucket s3://destinationBucket --delete --exact-timestamps Great. It completed successfully. Now let’s count the objects in the destination bucket\naws s3 ls s3://destinationBucket --recursive --summarize | grep \"Total Objects:\" And they differ by a very very small number.\nYou might run the sync again, just to be sure. Nope, nothing to sync.\nYou might even start comparing subpaths fileCount between buckets to drill down to the ones with a difference.\nAnd finally find some folders that report a diff by 1 between buckets.\nDespite having the exact same number of files.\nWhat gives?\nWell, in my case it was ~200.000 objects that no matter what I did differed by 2.\nI eventually found out that\nWhen a user clicks the “Create folder” button in the S3 management console, it creates a zero-length object with the same name as the folder. This ‘forces’ S3 to display the folder even when it is empty. Amazon S3 does not actually need folders to be created (in fact, they don’t actually exist!). Depending upon how you copied the objects between buckets, these zero-length objects might not have been copied.\nSo I was chasing ghosts created by someone who innocently clicked Create Folder in S3 Console twice some years back.\nOh, well…\n",
+  "wordCount" : "275",
+  "inLanguage": "en",
+  "datePublished": "2024-08-27T00:00:00Z",
+  "dateModified": "2024-08-27T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": {"email":"stelis@systematize.it","name":"stelis"}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://details.systematize.it/details/2024-08-27-s3-object-count-shenanigans/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tales Of Details",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://details.systematize.it/assets/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://details.systematize.it/" accesskey="h" title="Tales Of Details (Alt + H)">Tales Of Details</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://details.systematize.it/">Home</a>&nbsp;»&nbsp;<a href="https://details.systematize.it/details/">Details</a></div>
+    <h1 class="post-title entry-hint-parent">
+      S3 Object Count shenanigans
+    </h1>
+    <div class="post-meta"><span title='2024-08-27 00:00:00 +0000 UTC'>August 27, 2024</span>&nbsp;·&nbsp;<span>
+<a href="mailto:stelis@systematize.it">stelis</a></span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>Suppose you have access to an S3 bucket in some AWS account.<br>
+You need to get the files to another bucket (same or different AWS account I think makes no difference to my eventual point)</p>
+<p>You do your due diligence and count the objects in the origin bucket</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>aws s3 ls s3://originBucket --recursive --summarize | grep <span style="color:#e6db74">&#34;Total Objects:&#34;</span>
+</span></span></code></pre></div><p>You get the total count and start your sync</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>aws s3 sync s3://originBucket s3://destinationBucket --delete --exact-timestamps
+</span></span></code></pre></div><p>Great. It completed successfully. Now let&rsquo;s count the objects in the destination bucket</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>aws s3 ls s3://destinationBucket  --recursive --summarize | grep <span style="color:#e6db74">&#34;Total Objects:&#34;</span>
+</span></span></code></pre></div><p>And they differ by a very very small number.<br>
+You might run the sync again, just to be sure. Nope, nothing to sync.<br>
+You might even start comparing subpaths fileCount between buckets to drill down to the ones with a difference.<br>
+And finally find some folders that report a diff by 1 between buckets.<br>
+Despite having the exact same number of files.</p>
+<p><strong>What gives?</strong></p>
+<p>Well, in my case it was ~200.000 objects that no matter what I did differed by 2.<br>
+I <a href="https://stackoverflow.com/questions/67790428/why-are-my-aws-s3-object-counts-different">eventually found out</a> that</p>
+<blockquote>
+<p><em>When a user clicks the &ldquo;Create folder&rdquo; button in the S3 management console, it creates a zero-length object with the same name as the folder. This &lsquo;forces&rsquo; S3 to display the folder even when it is empty. Amazon S3 does not actually need folders to be created (in fact, they don&rsquo;t actually exist!). Depending upon how you copied the objects between buckets, these zero-length objects might not have been copied.</em></p>
+</blockquote>
+<p>So I was chasing ghosts created by someone who innocently clicked <em>Create Folder</em> in S3 Console twice some years back.</p>
+<p>Oh, well&hellip;</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://details.systematize.it/details/2024-08-27-diy-internet-connectivity-notification/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>DIY internet connectivity notification</span>
+  </a>
+  <a class="next" href="https://details.systematize.it/details/2024-08-26-aws-why-do-you-hate-me/">
+    <span class="title">Next »</span>
+    <br>
+    <span>AWS, why do you hate me?</span>
+  </a>
+</nav>
+
+  </footer><script src="https://utteranc.es/client.js"
+        repo="stelispanagiotakis/details"
+        issue-term="pathname"
+        theme="preferred-color-scheme"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://details.systematize.it/">Tales Of Details</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

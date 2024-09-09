@@ -1,0 +1,804 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Details on Tales Of Details</title>
+    <link>https://details.systematize.it/details/</link>
+    <description>Recent content in Details on Tales Of Details</description>
+    <generator>Hugo -- 0.156.0</generator>
+    <language>en-us</language>
+    <managingEditor>stelis@systematize.it (stelis)</managingEditor>
+    <webMaster>stelis@systematize.it (stelis)</webMaster>
+    <lastBuildDate>Wed, 28 Jan 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://details.systematize.it/details/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Mid-term alignment</title>
+      <link>https://details.systematize.it/details/2026-01-28-mid-term-alignment/</link>
+      <pubDate>Wed, 28 Jan 2026 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2026-01-28-mid-term-alignment/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;Selfishness is usually frowned upon.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Largely because it&amp;rsquo;s taken to mean &lt;code&gt;looking after my own interests to the detriment of others&lt;/code&gt;.&lt;br&gt;
+I find this definition a bit too simplistic.&lt;/p&gt;
+&lt;p&gt;All relationships, all interactions contain a transaction.&lt;br&gt;
+While it&amp;rsquo;s not at all romantic to voice as much ( ask me how I know :-P ), there is something to gain in everything we do.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Maintaining a friendship because you get a sympathetic ear.&lt;/li&gt;
+&lt;li&gt;Saying hi to your neighbor so it&amp;rsquo;s not awkward when you ask them for some coffee.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Sometimes the motive is evident and hurts others (so it&amp;rsquo;s labeled selfish).&lt;br&gt;
+Sometimes it&amp;rsquo;s more subtle and it avoids detection by this crude filter.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>My best idea yet, and I came a distant second</title>
+      <link>https://details.systematize.it/details/2026-01-26-my-best-idea-yet-and-i-came-a-distant-second/</link>
+      <pubDate>Mon, 26 Jan 2026 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2026-01-26-my-best-idea-yet-and-i-came-a-distant-second/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve been using &lt;code&gt;traefik&lt;/code&gt; in various contexts over the years.&lt;br&gt;
+It&amp;rsquo;s a bit much at first glance but once you get to know it, it can do anything ( at least anything I&amp;rsquo;ve thrown at it) and it&amp;rsquo;s extensible via plugins.&lt;br&gt;
+The winning feature it had when first introduced was &lt;code&gt;letsencrypt&lt;/code&gt; support.&lt;br&gt;
+You could have the ingress controller manage your certificates and inject them in any ingress you instructed it to. I&amp;rsquo;ve been using that feature for a long time.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Intuition is great... and dangerous</title>
+      <link>https://details.systematize.it/details/2026-01-20-intuition-is-great-and-dangerous/</link>
+      <pubDate>Tue, 20 Jan 2026 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2026-01-20-intuition-is-great-and-dangerous/</guid>
+      <description>&lt;p&gt;In my formative years, I would try to apply logic to any and all matters.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;How do I decide what to do?&lt;/li&gt;
+&lt;li&gt;Why should I do this?&lt;/li&gt;
+&lt;li&gt;What does this impact? etc etc.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Any kind of intuition of predisposition seemed &lt;em&gt;dangerous&lt;/em&gt; as I had no way of knowing why I leaning that way (biases, misinformation etc)&lt;/p&gt;
+&lt;p&gt;This analytical process was lengthy and exhausting but I like to think it helped shape a way of thinking and form a (mostly) reliable intuition.&lt;br&gt;
+I can still remember the exhilarating feeling of hearing a question, leaning one way about it, then analyzing it and discovering I still liked my original inclination.&lt;br&gt;
+I could now trust my gut and stop the (over)analysis, right?&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Cache-Control</title>
+      <link>https://details.systematize.it/details/2025-12-28-cache-control/</link>
+      <pubDate>Sun, 28 Dec 2025 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2025-12-28-cache-control/</guid>
+      <description>&lt;p&gt;There are two main problems in programming:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Invalidating Cache&lt;/li&gt;
+&lt;li&gt;Naming things&lt;/li&gt;
+&lt;li&gt;Off-by-one errors&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Let&amp;rsquo;s do cache in the web today :-)&lt;/p&gt;
+&lt;p&gt;Suppose you have a static frontend that you need to serve.&lt;br&gt;
+And you care about having globally available with low latency.&lt;br&gt;
+That&amp;rsquo;s the prime use case for a CDN, right?&lt;br&gt;
+So you deploy a CDN ( Cloudflare, Cloudfront etc).&lt;br&gt;
+And you point it to a source ( an S3 bucket with your static files or a publicly accessible web-server serving your files).&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Certificates, revisited</title>
+      <link>https://details.systematize.it/details/2025-12-13-certificates-revisited/</link>
+      <pubDate>Sat, 13 Dec 2025 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2025-12-13-certificates-revisited/</guid>
+      <description>&lt;p&gt;In the never-ending quest for &lt;a href=&#34;../posts/2025-06-13-extreme-env-parity.md&#34;&gt;env parity&lt;/a&gt;, I ran into another interesting issue.&lt;br&gt;
+&lt;code&gt;mkcert&lt;/code&gt; does not deal with client certificates, it only creates server certs.&lt;br&gt;
+What if we want to do mutual TLS and need them?&lt;br&gt;
+Well, buckle up, we&amp;rsquo;ll take &lt;code&gt;openssl&lt;/code&gt; for a ride.&lt;br&gt;
+We&amp;rsquo;ll need the three files shown below in a folder named &lt;code&gt;ca&lt;/code&gt; and the scripts that follow.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ca/ca.cnf&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[ policy_match ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;countryName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;match&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;stateOrProvinceName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;match&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;organizationName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;match&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;organizationalUnitName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;optional&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;commonName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;supplied&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;emailAddress&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;optional&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[ req ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;prompt&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;no&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;distinguished_name&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;dn&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;default_md&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;sha256&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;default_bits&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;4096&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;x509_extensions&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;v3_ca&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[ dn ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;countryName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;GR&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;organizationName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;MyCompany&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;localityName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;Athens&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;commonName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;mycompany-ca&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[ v3_ca ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;subjectKeyIdentifier&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;hash&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;basicConstraints&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;critical,CA:true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;authorityKeyIdentifier&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;keyid:always,issuer:always&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;keyUsage&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;critical,keyCertSign,cRLSign&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ca/client.cnf&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[req]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;prompt&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;no&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;distinguished_name&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;dn&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;default_md&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;sha256&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;default_bits&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;4096&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;req_extensions&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;v3_req&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[ dn ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;countryName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;GR&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;organizationName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;MyCompnay&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;localityName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;Athens&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;commonName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;mycompany-ca&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;commonName&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;*.random.k8s&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[ v3_ca ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;subjectKeyIdentifier&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;hash&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;basicConstraints&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;critical,CA:true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;authorityKeyIdentifier&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;keyid:always,issuer:always&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;keyUsage&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;critical,keyCertSign,cRLSign&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[ v3_req ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;subjectKeyIdentifier&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;hash&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;basicConstraints&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;CA:FALSE&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;nsComment&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;OpenSSL Generated Certificate&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;keyUsage&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;critical, digitalSignature, keyEncipherment&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;extendedKeyUsage&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;clientAuth&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;subjectAltName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;@alt_names&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[ alt_names ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.1&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;*.random.k8s&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.2&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;random.k8s&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.3&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;localhost&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.4&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;127.0.0.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.5&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;myservice&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.6&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;myotherservice&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.7&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;*.infra&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.8&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;*.app&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.9&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;*.somedomain.iwantotouse&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ca/server.cnf&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[req]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;prompt&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;no&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;distinguished_name&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;dn&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;default_md&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;sha256&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;default_bits&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;4096&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;req_extensions&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;v3_req&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[ dn ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;countryName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;GR&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;organizationName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;mycompany&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;localityName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;Athens&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;commonName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;mycompany-ca&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;commonName&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;*.random.k8s&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[ v3_ca ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;subjectKeyIdentifier&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;hash&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;basicConstraints&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;critical,CA:true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;authorityKeyIdentifier&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;keyid:always,issuer:always&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;keyUsage&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;critical,keyCertSign,cRLSign&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[ v3_req ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;subjectKeyIdentifier&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;hash&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;basicConstraints&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;CA:FALSE&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;nsComment&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;OpenSSL Generated Certificate&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;keyUsage&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;critical, digitalSignature, keyEncipherment&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;extendedKeyUsage&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;serverAuth&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;subjectAltName&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;@alt_names&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[ alt_names ]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.1&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;*.random.k8s&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.2&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;random.k8s&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.3&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;localhost&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.4&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;127.0.0.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.5&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;myservice&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.6&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;myotherservice&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.7&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;*.infra&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.8&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;*.app&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;DNS.9&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;*.somedomain.iwantotouse&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; create_certs&lt;span style=&#34;color:#f92672&#34;&gt;()&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  local CERTS_DIR&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#66d9ef&#34;&gt;:-&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/opt/my_certs&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  local STORE_PASS&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;STORE_PASS&lt;span style=&#34;color:#66d9ef&#34;&gt;:-&lt;/span&gt;changeit&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# uninstall any existing CAs handled by mkcert&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  mkcert -uninstall
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# then delete the CA files&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# and existing client/server certs&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  rm -rf &lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;mkcert -CAROOT&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;/*
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  rm -rf &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/*
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# create new ca&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  openssl req -new -nodes &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    -x509 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    -days &lt;span style=&#34;color:#ae81ff&#34;&gt;3650&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    -newkey rsa:2048 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    -keyout &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    -out &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    -config ./ca/ca.cnf
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# create ca pem from crt and key&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.crt &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.key &amp;gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.pem
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# create ca p12 from existing java trust store&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  docker run --rm -it -v &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;:/certs  &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    eclipse-temurin:17-jdk -- keytool -importkeystore &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   -srckeystore/opt/java/openjdk/lib/security/cacerts &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   -srcstoretype PKCS12 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   -srcstorepass changeit &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   -destkeystore /certs/ca.p12  &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   -deststoretype PKCS12 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   -deststorepass &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;STORE_PASS&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# change files to have proper user permissions&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  sudo chown &lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;id -u&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;:&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;id -g&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.p12
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# add our new ca to newly created store&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  docker run --rm -it -v &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;:/certs  &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    eclipse-temurin:17-jdk &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           -- keytool -importcert -alias my_ca_cert &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                      -file /certs/ca.pem &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                      -keystore /certs/ca.p12 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                      -deststorepass &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;STORE_PASS&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                      -noprompt
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# create key and csr for server EKU&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  openssl req -new &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -newkey rsa:2048 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -keyout &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/server.key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -out &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/server.csr &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -config ./ca/server.cnf &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -nodes
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# sign the server csr and create cert&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  openssl x509 -req &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -days &lt;span style=&#34;color:#ae81ff&#34;&gt;3650&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -in &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/server.csr &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -CA &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -CAkey &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -CAcreateserial &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -out &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/server.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -extfile ./ca/server.cnf &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -extensions v3_req
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# create server pem from crt and key&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/server.crt &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/server.key &amp;gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/server.pem
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# create server p12 keystore&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  openssl pkcs12 -export &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -in &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/server.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -inkey &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/server.key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -chain &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -CAfile &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.pem &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -name server &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -out &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/server.p12 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -password pass:&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;STORE_PASS&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# change files to have proper user permissions&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  sudo chown &lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;id -u&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;:&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;id -g&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/server.p12
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# import server p12 to store if needed&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  docker run --rm -it -v &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;:/certs  &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    eclipse-temurin:17-jdk -- keytool &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         -importcert -alias server_cert &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         -file /certs/server.pem &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         -keystore /certs/ca.p12 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         -deststorepass &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;STORE_PASS&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         -noprompt
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# create key and csr for client EKU&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  openssl req -new &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -newkey rsa:2048 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -keyout &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/client.key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -out &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/client.csr &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -config ./ca/client.cnf &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -nodes
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# sign the client csr and create cert&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  openssl x509 -req &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -days &lt;span style=&#34;color:#ae81ff&#34;&gt;3650&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -in &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/client.csr &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -CA &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -CAkey &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -CAcreateserial &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -out &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/client.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -extfile ./ca/client.cnf &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -extensions v3_req
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# create client pem from crt and key&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/client.crt &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/client.key &amp;gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/client.pem
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# create client p12 keystore&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  openssl pkcs12 -export &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -in &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/client.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -inkey &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/client.key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -chain &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -CAfile &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.pem &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -name client &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -out &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/client.p12 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      -password pass:&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;STORE_PASS&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# change files created to have proper user permissions&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  sudo chown &lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;id -u&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;:&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;id -g&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/client.p12
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# import client p12 to store if needed&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  docker run --rm -it -v &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;PWD&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;:/certs &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         eclipse-temurin:17-jdk &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           -- keytool -importcert -alias client_cert &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           -file /certs/client.pem &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           -keystore /certs/ca.p12 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           -deststorepass &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;STORE_PASS&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           -noprompt
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# list certs in store to verify everything imported&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  docker run --rm -it -v &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;PWD&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;:/certs  &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;         eclipse-temurin:17-jdk &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           -- keytool -list -v -keystore /certs/ca.p12 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           -storepass &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;STORE_PASS&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# cleanup files we don&amp;#39;t need&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  rm -rf &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/client.csr
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  rm -rf &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/server.csr
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# copy ca files to mkcert folder&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  cp &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.key &lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;mkcert -CAROOT&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;/rootCA-key.pem
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  cp &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.crt &lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;mkcert -CAROOT&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;/rootCA.pem
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  cp &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;/ca.srl &lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;mkcert -CAROOT&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;/rootCA.srl
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# trust the ca for your system&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  mkcert -install
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# concatenate server cert + ca.cert to use for ingress&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  cat &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/server.crt &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/ca.crt &amp;gt; &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/full.pem
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; create_tls_secrets&lt;span style=&#34;color:#f92672&#34;&gt;()&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  kubectl create namespace traefik
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  kubectl create namespace infra
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  kubectl create namespace app
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# create ingress certificate&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  kubectl -n traefik create secret tls my-root-ca-tls &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          --key &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/server.key  &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          --cert &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/server.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          --dry-run&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;client -o yaml &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          | kubectl apply -f -
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# create secret for plain certificates in infra + app namespaces&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  kubectl -n infra create secret generic certificates &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;ca.crt&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/ca.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;server.crt&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/server.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;server.key&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/server.key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;client.crt&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/client.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;client.key&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/client.key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --dry-run&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;client -o yaml &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        | kubectl apply -f -
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  kubectl -n app create secret generic certificates &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;ca.crt&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/ca.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;server.crt&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/server.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;server.key&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/server.key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;client.crt&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/client.crt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;client.key&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/client.key &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --dry-run&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;client -o yaml &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        | kubectl apply -f -
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# create secret for keystores in infra + app namespaces&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  kubectl -n infra create secret generic keystores &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;ca.p12&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/ca.p12&lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;server.p12&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/server.p12 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;client.p12&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/client.p12 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-literal&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;password&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;STORE_PASS&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --dry-run&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;client -o yaml &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        | kubectl apply -f -
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  kubectl -n app create secret generic keystores &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;ca.p12&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/ca.p12&lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;server.p12&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/server.p12 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-file&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;client.p12&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;CERTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;/client.p12 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --from-literal&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;password&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;STORE_PASS&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        --dry-run&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;client -o yaml &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        | kubectl apply -f -
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now we&amp;rsquo;ve got 2 secrets per namespace.&lt;br&gt;
+One contains certificates, the other keystores.&lt;br&gt;
+We can mount them to our apps as needed to be used for mutual TLS.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Dev Ready Bare Metal k8s</title>
+      <link>https://details.systematize.it/details/2025-12-13-dev-ready-bare-metal-k8s/</link>
+      <pubDate>Sat, 13 Dec 2025 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2025-12-13-dev-ready-bare-metal-k8s/</guid>
+      <description>&lt;p&gt;We&amp;rsquo;re building a shared development environment in k8s&lt;br&gt;
+The typical cloud managed k8s services are not available.&lt;br&gt;
+We need ample resources and low-as-possible price for k8s.&lt;/p&gt;
+&lt;p&gt;Requirements? We have them&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Private access. Given private access to the machine&amp;rsquo;s local IP address, it needs to be reachable and publish services to that interface.&lt;/li&gt;
+&lt;li&gt;Public Access. Given a public IP assigned to its second interface, we need to be able to selectively publish services to the internet.&lt;/li&gt;
+&lt;li&gt;Data is not important. We care about them as far as they are needed for the services to keep running properly.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Wanna try a Bare Metal server for this?&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>If my java memory serves me well...</title>
+      <link>https://details.systematize.it/details/2025-12-13-if-my-java-memory-serves-me-well/</link>
+      <pubDate>Sat, 13 Dec 2025 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2025-12-13-if-my-java-memory-serves-me-well/</guid>
+      <description>&lt;p&gt;You&amp;rsquo;ve got a backend in Java deployed in k8s and every once in a while it OOMs.&lt;br&gt;
+What a surprise :-P&lt;/p&gt;
+&lt;p&gt;How do you go about fixing this?&lt;br&gt;
+Well, give it more memory since it&amp;rsquo;s out!&lt;br&gt;
+About half the time this will help.&lt;br&gt;
+But in case you&amp;rsquo;re not lucky and you need to fix the underlying issue, let&amp;rsquo;s take the engineering way around.&lt;br&gt;
+It&amp;rsquo;s full of twists, turns and &lt;em&gt;wasted&lt;/em&gt; time.&lt;br&gt;
+But if you need it, it&amp;rsquo;s indispensable.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>You&#39;re allowed to not know everything</title>
+      <link>https://details.systematize.it/details/2025-12-13-youre-allowed-to-not-know-everything/</link>
+      <pubDate>Sat, 13 Dec 2025 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2025-12-13-youre-allowed-to-not-know-everything/</guid>
+      <description>&lt;p&gt;Another not, strictly, technical post.&lt;br&gt;
+But one that&amp;rsquo;s very dear to me and has been instrumental to my development as a person and a professional.&lt;/p&gt;
+&lt;p&gt;The IT sector is a hard skills sector with lots of depth.&lt;br&gt;
+The more you know on your subject, the more valuable you are, the more respect you can get from your peers and compensation from your employer.&lt;/p&gt;
+&lt;p&gt;But what once might have been a difficult quest ( know everything in my field) is now practically impossible.&lt;br&gt;
+You cannot know everything, you should not be trying to know everything and you should not be expecting anyone else to know everything either.&lt;br&gt;
+Even if you define everything as &lt;code&gt;everything within my specific role&lt;/code&gt; or &lt;code&gt;everything about a specific technology or tool&lt;/code&gt;, this is still a fool&amp;rsquo;s errand.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Imposter Syndrome</title>
+      <link>https://details.systematize.it/details/2025-11-09-imposter-syndrome/</link>
+      <pubDate>Sun, 09 Nov 2025 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2025-11-09-imposter-syndrome/</guid>
+      <description>&lt;p&gt;Wanted to save this quote somewhere visible.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Impostor syndrome doesn’t mean you’re unqualified.&lt;br&gt;
+It means you’re growing faster than your confidence can catch up.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Sourced &lt;a href=&#34;https://www.linkedin.com/posts/tahahussain_if-you-feel-like-a-fraud-heres-the-good-activity-7392965920622563328-gS3L?utm_source=social_share_send&amp;amp;utm_medium=android_app&amp;amp;rcm=ACoAAC9fIIsBT3GsYugKUsQsGkC-7tdQMZ2YbCY&amp;amp;utm_campaign=copy_link&#34;&gt;here&lt;/a&gt;, from engineering career coach &lt;a href=&#34;https://www.linkedin.com/in/tahahussain?miniProfileUrn=urn%3Ali%3Afsd_profile%3AACoAAACvaH0BCY5H0hdEkMEa3tX_tiJaIYS6bFQ&#34;&gt;Taha Hussain&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>The Triangle of Conscience</title>
+      <link>https://details.systematize.it/details/2025-11-07-the-triangle-of-conscience/</link>
+      <pubDate>Fri, 07 Nov 2025 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2025-11-07-the-triangle-of-conscience/</guid>
+      <description>&lt;p&gt;Conscience is like a triangle in your heart.&lt;/p&gt;
+&lt;p&gt;When you do something wrong it spins and hurts you a bit.&lt;/p&gt;
+&lt;p&gt;If it spins for too long, its edges fade and it stops hurting.&lt;/p&gt;
+&lt;p&gt;( This metaphor is supposedly inspired by a Navajo teaching. I could not find reputable sources about the origin or the usage of the .metaphor. But the idea seems potent enough to stand on its own.)&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Extreme Env Parity</title>
+      <link>https://details.systematize.it/details/2025-06-13-extreme-env-parity/</link>
+      <pubDate>Fri, 13 Jun 2025 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2025-06-13-extreme-env-parity/</guid>
+      <description>&lt;p&gt;You need/want a local k8s environment to develop your container images, helm charts etc.&lt;br&gt;
+And you&amp;rsquo;re pedantic about env parity. Your envs should differ only where they absolutely need to.&lt;br&gt;
+So that you can re-use your manifests/charts as usual and when you eventually push to a shared env, you do so with confidence.&lt;/p&gt;
+&lt;p&gt;You don&amp;rsquo;t expect issues with the workloads. You can build or pull the containers.&lt;br&gt;
+Persistence may be an issue but your local k8s solution should already have a storage class for you to use.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Cheap Thrills</title>
+      <link>https://details.systematize.it/details/2025-04-19-cheap-thrills/</link>
+      <pubDate>Sat, 19 Apr 2025 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2025-04-19-cheap-thrills/</guid>
+      <description>&lt;p&gt;Consider the case of a hobby project or a startup with no funding or clients for the foreseeable future.&lt;br&gt;
+We need dirt cheap infra for development and demos.&lt;/p&gt;
+&lt;p&gt;What&amp;rsquo;s the lowest price for:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;somewhere I can run a couple of containers of my services&lt;/li&gt;
+&lt;li&gt;a db to save my data, managed if possible&lt;/li&gt;
+&lt;li&gt;a Load Balancer to expose my app to the world&lt;/li&gt;
+&lt;li&gt;DNS so I can slap a name on the thing.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;AWS Free Tier (or equivalent) is always on the table.&lt;br&gt;
+But then you need to be vigilant of usage and attentive to details (and who&amp;rsquo;s got time for the details, right? :-P)&lt;br&gt;
+A simple VPC + subnets + NATs in AWS ends up costing somewhere near 15$ / month when accounting for Public IPs and traffic.&lt;br&gt;
+And then we factor in our apps&amp;rsquo; needs.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Empathy for Engineers</title>
+      <link>https://details.systematize.it/details/2025-03-15-empathy-for-engineers/</link>
+      <pubDate>Sat, 15 Mar 2025 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2025-03-15-empathy-for-engineers/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve been in a couple of leadership seminars. One of the concepts that arose as central for good leadership was empathy.&lt;/p&gt;
+&lt;p&gt;But what&amp;rsquo;s empathy? Let&amp;rsquo;s use &lt;a href=&#34;https://greatergood.berkeley.edu/topic/empathy/definition#:~:text=Emotion%20researchers%20generally%20define%20empathy,might%20be%20thinking%20or%20feeling&#34;&gt;this&lt;/a&gt; definition.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&amp;hellip;the ability to sense other people&amp;rsquo;s emotions, coupled with the ability to imagine what someone else might be thinking or feeling.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;If someone says &lt;code&gt;I&#39;m sad&lt;/code&gt; and I hear that, am I now empathetic towards them?&lt;br&gt;
+Empathy is not superficial, but an in-depth understanding of both the state (&lt;code&gt;sad&lt;/code&gt;) and its underlying causes, ideally coupled with the ability to predict future behavior.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Was this piece of code successful?</title>
+      <link>https://details.systematize.it/details/2024-10-04-was-this-piece-of-code-successful/</link>
+      <pubDate>Fri, 04 Oct 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-10-04-was-this-piece-of-code-successful/</guid>
+      <description>&lt;p&gt;When it comes to a unit of code ( let&amp;rsquo;s define it as a project, service, function, script etc that performs some task) how do you define success?&lt;/p&gt;
+&lt;p&gt;An easy answer would be &lt;em&gt;It fulfils its primary purpose&lt;/em&gt;&lt;br&gt;
+Each unit&amp;rsquo;s purpose, of course, differs.&lt;br&gt;
+But, excluding learning projects, PoCs and similar endeavors, most of our work is commissioned.&lt;br&gt;
+And it usually includes support and maintenance, right?&lt;/p&gt;
+&lt;p&gt;Most of us, hopefully, enjoy the building part but merely tolerate the support/maintenance part.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Managed Services Woes, RabbitMQ Edition</title>
+      <link>https://details.systematize.it/details/2024-09-28-managed-services-woes-rabbitmq/</link>
+      <pubDate>Sat, 28 Sep 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-09-28-managed-services-woes-rabbitmq/</guid>
+      <description>&lt;p&gt;I love managed services. You need a message broker, I&amp;rsquo;ll have one ready for you in 15&amp;rsquo;.&lt;br&gt;
+We trade some money for ease of use and focus on the core deliverable, great.&lt;/p&gt;
+&lt;p&gt;But then we need a simple change. Make the message queue&amp;rsquo;s endpoint public.&lt;br&gt;
+If you&amp;rsquo;re using AWS MQ RabbitMQ and had created a private instance, then tried to flick a switch to make it public&amp;hellip;&lt;br&gt;
+Let&amp;rsquo;s start a support group, I&amp;rsquo;ll bring the cookies and frustration :-P&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>macos setup as code</title>
+      <link>https://details.systematize.it/details/2024-09-21-macos-setup-as-code/</link>
+      <pubDate>Sat, 21 Sep 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-09-21-macos-setup-as-code/</guid>
+      <description>&lt;p&gt;I try to keep track of everything that goes into my work machine.&lt;br&gt;
+I, of course, start missing things after a couple of months.&lt;br&gt;
+But the value is in trying, right? Let&amp;rsquo;s hope so.&lt;/p&gt;
+&lt;p&gt;In any case, I recently setup a macos machine from scratch. It was intended for devops/infra work ( k8s, terraform, aws etc).&lt;br&gt;
+It also includes java + node as I&amp;rsquo;ll occasionally need to build the apps before running them.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>ConfigMap Confusion</title>
+      <link>https://details.systematize.it/details/2024-09-16-configmap-confusion/</link>
+      <pubDate>Mon, 16 Sep 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-09-16-configmap-confusion/</guid>
+      <description>&lt;p&gt;This has happened to me more than a few times&amp;hellip;&lt;/p&gt;
+&lt;p&gt;We&amp;rsquo;re mounting a ConfigMap to our container and using it to configure some aspect of the app inside it.&lt;br&gt;
+Then the ConfigMap changes.&lt;br&gt;
+But the app is unaware and does not react/reconfigure itself. Which component is at fault here and how can we fix it?&lt;/p&gt;
+&lt;p&gt;Until this bit me, I was under the impression that Configmaps mounted in containers do NOT auto-update their contents in the container.&lt;br&gt;
+At least not without restarting the container itself.&lt;br&gt;
+There are even projects that undertake parts of this responsibility.&lt;br&gt;
+Like &lt;a href=&#34;https://github.com/stakater/Reloader&#34; title=&#34;Reloader&#34;&gt;Reloader&lt;/a&gt; or &lt;a href=&#34;https://docs.spring.io/spring-cloud-kubernetes/reference/spring-cloud-kubernetes-configuration-watcher.html&#34; title=&#34;SpringBoot Config Watcher&#34;&gt;SpringBoot Config Watcher&lt;/a&gt;.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>My most used bash functions</title>
+      <link>https://details.systematize.it/details/2024-09-15-my-most-used-bash-functions/</link>
+      <pubDate>Sun, 15 Sep 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-09-15-my-most-used-bash-functions/</guid>
+      <description>&lt;p&gt;There&amp;rsquo;s problems you&amp;rsquo;d like to solve.&lt;br&gt;
+And problems you like solving.&lt;/p&gt;
+&lt;p&gt;What you put in the second category is almost uncomfortably revealing of who you are.&lt;br&gt;
+Anything you consider trivial fits right into the first category and is a candidate for automation.&lt;/p&gt;
+&lt;p&gt;Here are some of these automations I bring with me to all new laptops I work on.&lt;/p&gt;
+&lt;h2 id=&#34;get-a-random-string-of-variable-length&#34;&gt;get a random string of variable length&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; randpw&lt;span style=&#34;color:#f92672&#34;&gt;()&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;# e.g randpw 20&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  local pwlength&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;1&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  cat /dev/urandom | tr -dc &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;a-zA-Z0-9!@#$%^&amp;amp;*()-[]{}:;\|,.&amp;lt;&amp;gt;/?&amp;#39;&lt;/span&gt; | fold -w &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;pwlength&lt;span style=&#34;color:#66d9ef&#34;&gt;:-&lt;/span&gt;50&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; | head -n &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;full-update-for-ubuntu-distros&#34;&gt;full update for ubuntu distros&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; fu&lt;span style=&#34;color:#f92672&#34;&gt;()&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    sudo apt update
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    sudo apt -y upgrade
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    sudo apt -y dist-upgrade
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    sudo apt -y autoremove
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    sudo ubuntu-drivers install
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    brew update
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    brew upgrade
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;update-all-repos-in-your-code-directory&#34;&gt;update all repos in your code directory&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; getallprojects&lt;span style=&#34;color:#f92672&#34;&gt;()&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  find &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;YOUR_PROJECTS_DIR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; -maxdepth &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            -mindepth &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            -type d &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            -printf &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;%f\n&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            | grep -v .vscode
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; getdefaultbranch&lt;span style=&#34;color:#f92672&#34;&gt;()&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  git remote show origin | grep &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;HEAD branch&amp;#39;&lt;/span&gt; | cut -d&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt; -f5
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; refreshprojects&lt;span style=&#34;color:#f92672&#34;&gt;()&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  local LIGHTGREEN&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;\e[92m&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  local ENDCOLOR&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;\e[0m&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  echo &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;---------------&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; project in &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;getallprojects&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;do&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    echo -e &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Refreshing &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;LIGHTGREEN&lt;span style=&#34;color:#e6db74&#34;&gt;}${&lt;/span&gt;project&lt;span style=&#34;color:#e6db74&#34;&gt;}${&lt;/span&gt;ENDCOLOR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    pushd &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;project&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &amp;gt; /dev/null &lt;span style=&#34;color:#f92672&#34;&gt;||&lt;/span&gt; exit
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    git fetch --prune
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    git checkout &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;getdefaultbranch&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    git pull
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    popd &amp;gt; /dev/null &lt;span style=&#34;color:#f92672&#34;&gt;||&lt;/span&gt; exit
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    echo &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;---------------&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;done&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;hack-to-get-a-urlencoded-string&#34;&gt;hack to get a urlencoded string&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; urlenc&lt;span style=&#34;color:#f92672&#34;&gt;()&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  local str_to_encode&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;1&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  encoded_str&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;python3 -c &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;import urllib.parse; print(urllib.parse.quote(&amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;str_to_encode&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&amp;#39;&amp;#39;))&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  echo &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;encoded_str&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# why did I need it?&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# verify connectivity to rabbitmq, password had special characters&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#75715e&#34;&gt;# rabbitmq-dump-queue -uri=&amp;#34;amqps://mq_user:$(urlenc &amp;#34;${mq_password}&amp;#34;)@my.mq.endpoint.tld:5671/&amp;#34; -queue=myqueue -max-messages=1 -output-dir=./&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Is it worth the time? &lt;a href=&#34;https://xkcd.com/1205/&#34; title=&#34;It depends&#34;&gt;It depends&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Can I get Free Email for my custom Domain, please?</title>
+      <link>https://details.systematize.it/details/2024-09-14-can-i-get-free-email-for-my-custom-domain-please/</link>
+      <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-09-14-can-i-get-free-email-for-my-custom-domain-please/</guid>
+      <description>&lt;p&gt;At some point you bought a domain. You made something of it, or (usually) not. Now you&amp;rsquo;d like an email address on that domain.&lt;br&gt;
+It looks much nicer than your typical &lt;code&gt;xyz@gmail.com&lt;/code&gt;, right?&lt;/p&gt;
+&lt;p&gt;Especially if you&amp;rsquo;re a business, Google Workspace or Microsoft 365 is a no-brainer.&lt;br&gt;
+You get your custom domain email, storage, collaboration apps, SSO and other tools for something like 5-10$/person/month.&lt;/p&gt;
+&lt;p&gt;But if you&amp;rsquo;re like me (i.e you like the vanity of the thing but will not allow yourself the expense unless you know you&amp;rsquo;ll actually use it or it&amp;rsquo;ll make its money back somehow) you may be looking for something without monthly subscriptions, preferably free.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Get the env vars your app started with</title>
+      <link>https://details.systematize.it/details/2024-09-14-get-the-env-vars-your-app-started-with/</link>
+      <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-09-14-get-the-env-vars-your-app-started-with/</guid>
+      <description>&lt;p&gt;The setup should be familiar. You have an app that is ready to ship, so you put it in a docker image.&lt;br&gt;
+Any config after that is done mostly via env vars.&lt;/p&gt;
+&lt;p&gt;For anything non-trivial like e.g - mounting and parsing secrets to env vars - making sure certain default values are overriden&lt;/p&gt;
+&lt;p&gt;you need an init script that calculates the var&amp;rsquo;s desired value, then exports it like&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;export MY_CONFIG_VAR&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;calculated_value
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;And once done, you&amp;rsquo;d start the app with your equivalent of&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Meet your Heroes!</title>
+      <link>https://details.systematize.it/details/2024-09-10-meet-your-heroes/</link>
+      <pubDate>Tue, 10 Sep 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-09-10-meet-your-heroes/</guid>
+      <description>&lt;p&gt;There&amp;rsquo;s this quote that I hate&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;Never meet your heroes&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The assumption being that our heroes should be seated on pedestals and admired from afar.&lt;br&gt;
+Meeting them will uncover their human flaws and thus they&amp;rsquo;ll lose their glory and primary function.&lt;/p&gt;
+&lt;p&gt;That&amp;rsquo;s why I love Colossus&amp;rsquo; quote from the first Deadpool movie&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;Everyone thinks it&amp;rsquo;s a full-time job. Wake up a hero. Brush your teeth a hero. Go to work a hero. Not true. Over a lifetime, there are only four or five moments that really matter. Moments when you&amp;rsquo;re offered a choice - to make a sacrifice, conquer a flaw, save a friend, spare an enemy. In these moments, everything else falls away.&lt;/em&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Linguistic Details</title>
+      <link>https://details.systematize.it/details/2024-09-08-linguistic-details/</link>
+      <pubDate>Sun, 08 Sep 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-09-08-linguistic-details/</guid>
+      <description>&lt;p&gt;Language is a terrific tool to get your message across.&lt;br&gt;
+But it exactly that, a tool.&lt;br&gt;
+Everyone uses it for their purposes.&lt;br&gt;
+And if it succeeds we should be happy.&lt;br&gt;
+After all, conveying a nuanced message is hard enough in itself.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;This is why I&amp;rsquo;ve stopped being pedantic about small errors in syntax or grammar, unless the sender has explicitly asked for comments on that.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;On the other hand, it&amp;rsquo;s almost magical when you notice a skilled speaker masterfully choosing the correct word to relay their message.&lt;br&gt;
+In just as many words, they&amp;rsquo;ve communicated volumes more.&lt;br&gt;
+But to understand and appreciate that you need to be prepared.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Port-forward non k8s service via k8s</title>
+      <link>https://details.systematize.it/details/2024-09-08-port-forward-non-k8s-service-via-k8s/</link>
+      <pubDate>Sun, 08 Sep 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-09-08-port-forward-non-k8s-service-via-k8s/</guid>
+      <description>&lt;p&gt;So, suppose my app that runs on k8s needs a postgres db to write to.&lt;br&gt;
+I&amp;rsquo;ll set up an RDS that is reachable only within my VPC.&lt;br&gt;
+Then a dev needs to connect to that DB from their local to troubleshoot some weird issue.&lt;br&gt;
+What do I do?&lt;br&gt;
+The tried-and-true solution is of course some VPN.&lt;br&gt;
+If you have the time and resources to do it right, you&amp;rsquo;re golden.&lt;br&gt;
+If not, a VPN is a surefire way to headaches. (new authentication pool, 2FA , maintenance, split DNS, slow connection speeds etc)&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>What&#39;s the most you can make of an olivetin?</title>
+      <link>https://details.systematize.it/details/2024-09-08-whats-the-most-you-can-make-of-an-olivetin/</link>
+      <pubDate>Sun, 08 Sep 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-09-08-whats-the-most-you-can-make-of-an-olivetin/</guid>
+      <description>&lt;p&gt;No, not that kind of olivetin, &lt;a href=&#34;https://github.com/OliveTin/OliveTin&#34;&gt;this&lt;/a&gt; one :-P&lt;/p&gt;
+&lt;p&gt;OliveTin is a simple web UI that can be configured via yaml to run cli commands. You add a section such as&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;actions&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- &lt;span style=&#34;color:#f92672&#34;&gt;title&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;Restart backend&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;icon&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;restart&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;shell&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;docker restart main-backend&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;and in its UI you&amp;rsquo;ll find an icon with your title that, once pressed, will execute the shell command you specifed. You can even add arguments&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- &lt;span style=&#34;color:#f92672&#34;&gt;title&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;Ping host&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;shell&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;ping {{ host }}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;icon&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;ping&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;arguments&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;host&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;title&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;host&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;type&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;ascii_identifier&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;default&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;example.com&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;My only slight complaint is that while it sort of supports &lt;a href=&#34;https://docs.olivetin.app/_security_configuration.html&#34;&gt;authorization&lt;/a&gt; it does not support authentication. If you&amp;rsquo;re deploying it to be publicly accessible, you&amp;rsquo;d need to configure your ingress to authenticate the user and only then redirect them to the app.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Why did Ancient Greeks not have Probability Theory?</title>
+      <link>https://details.systematize.it/details/2024-09-08-why-did-ancient-greeks-not-have-probability-theory/</link>
+      <pubDate>Sun, 08 Sep 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-09-08-why-did-ancient-greeks-not-have-probability-theory/</guid>
+      <description>&lt;p&gt;Ancient Greeks&amp;rsquo; contribution to the foundation of sciences in undeniable. Euclidian Geometry, that accurately describes the space around us,the concept of &amp;ldquo;mathematical proof&amp;rdquo;, Aristarchus&amp;rsquo; heliocentric theory, the foundation of medicine by Hippocrates, philosophy as expressed by Plato, Socrates and Aristotle are few examples to support this. It&amp;rsquo;s usual and familiar, whenever tracing back to the foundation of a scientific field, to find references to Ancient Greece. So it might surprise a scholar of the history of Probability Theory that its origins date back to the 16th century. And they might rightfully wonder &lt;strong&gt;why did Ancient Greeks not have Probability Theory?&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>S3 can be persistent</title>
+      <link>https://details.systematize.it/details/2024-09-07-s3-can-be-persistent/</link>
+      <pubDate>Sat, 07 Sep 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-09-07-s3-can-be-persistent/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve always hated adding persistence in k8s workloads.&lt;br&gt;
+There are valid reasons to avoid it, right?&lt;br&gt;
+Adding a PV means people can store stuff there that they expect to find, regardless of where the app is deployed/redeployed (which could be in another region/zone/cluster/node etc where the original pv is not present)&lt;br&gt;
+Thus adding another step in the deployment process that comes usually as an afterthought and may be easily overlooked and poorly documented.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>DIY internet connectivity notification</title>
+      <link>https://details.systematize.it/details/2024-08-27-diy-internet-connectivity-notification/</link>
+      <pubDate>Tue, 27 Aug 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-08-27-diy-internet-connectivity-notification/</guid>
+      <description>&lt;p&gt;WFH is great!&lt;br&gt;
+But every once in a while, internet goes down mid-workday and you&amp;rsquo;re not sure when it will be back up.&lt;br&gt;
+You&amp;rsquo;re forced to leave in a hurry for some nearby cafe.&lt;br&gt;
+How can you know it&amp;rsquo;s back up so you can return?&lt;br&gt;
+I solved this once and while I&amp;rsquo;m not proud of how it worked, it worked!&lt;/p&gt;
+&lt;p&gt;Prerequisite: A host in that network and a Slack workspace or other service you&amp;rsquo;re allowed to create a webhook for.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>S3 Object Count shenanigans</title>
+      <link>https://details.systematize.it/details/2024-08-27-s3-object-count-shenanigans/</link>
+      <pubDate>Tue, 27 Aug 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-08-27-s3-object-count-shenanigans/</guid>
+      <description>&lt;p&gt;Suppose you have access to an S3 bucket in some AWS account.&lt;br&gt;
+You need to get the files to another bucket (same or different AWS account I think makes no difference to my eventual point)&lt;/p&gt;
+&lt;p&gt;You do your due diligence and count the objects in the origin bucket&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;aws s3 ls s3://originBucket --recursive --summarize | grep &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Total Objects:&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You get the total count and start your sync&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;aws s3 sync s3://originBucket s3://destinationBucket --delete --exact-timestamps
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Great. It completed successfully. Now let&amp;rsquo;s count the objects in the destination bucket&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>AWS, why do you hate me?</title>
+      <link>https://details.systematize.it/details/2024-08-26-aws-why-do-you-hate-me/</link>
+      <pubDate>Mon, 26 Aug 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-08-26-aws-why-do-you-hate-me/</guid>
+      <description>&lt;p&gt;It&amp;rsquo;s generally a good practice to differentiate between application endpoints than need to be accessible via Internet and endpoints that need to be accessible only internally via your private VPC.&lt;br&gt;
+But what if I need one app&amp;rsquo;s endpoint temporarily accessible to my CICD runner that&amp;rsquo;s not in the VPC?&lt;br&gt;
+e.g a &lt;em&gt;/health&lt;/em&gt; to know if the deployment succeeded.&lt;/p&gt;
+&lt;p&gt;If you&amp;rsquo;re on AWS, you may be correctly thinking PrivateLink, VPC Endpoints etc&lt;br&gt;
+But that may be overkill for a short-lived connection from our CICD.&lt;br&gt;
+The apps I&amp;rsquo;m interested in run mostly in kubernetes.&lt;br&gt;
+To access an internal endpoint from my local, I&amp;rsquo;d just &lt;code&gt;kubectl port-forward&lt;/code&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Bash rocks! It also bombs :-D</title>
+      <link>https://details.systematize.it/details/2024-08-26-bash-rocks-it-also-bombs-d/</link>
+      <pubDate>Mon, 26 Aug 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-08-26-bash-rocks-it-also-bombs-d/</guid>
+      <description>&lt;p&gt;Ran into a nice little bit of nostalgia today.&lt;br&gt;
+Have any of you heard/remember the bash bomb ?&lt;br&gt;
+It&amp;rsquo;s Denial of Service attack in 13 characters!&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;: &lt;span style=&#34;color:#f92672&#34;&gt;(){&lt;/span&gt; : |: &amp;amp; &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;;:
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Here&amp;rsquo;s &lt;a href=&#34;https://www.cyberciti.biz/faq/understanding-bash-fork-bomb/&#34;&gt;how&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Why quote environment variable values in kubernetes manifests?</title>
+      <link>https://details.systematize.it/details/2024-08-26-why-quote-environment-variable-values-in-kubernetes-manifests/</link>
+      <pubDate>Mon, 26 Aug 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-08-26-why-quote-environment-variable-values-in-kubernetes-manifests/</guid>
+      <description>&lt;p&gt;This a another discussion I have frequently.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Why bother changing something, however small, if it works as it is?&lt;/li&gt;
+&lt;li&gt;Well, it&amp;rsquo;s a best practice. If we can spend a very limited amount of time to make trivial changes that will protect us from mishaps, carelessness and changes beyond our control, is it not worth it?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This argument, on its own, is usually not very effective against a stubborn engineer in a hurry.&lt;br&gt;
+So, whenever possible, I try to give more concrete examples.&lt;br&gt;
+Here&amp;rsquo;s one that I was happy to find just in time for such a discussion.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>What&#39;s in a detail that makes it worth a tale?</title>
+      <link>https://details.systematize.it/details/2024-08-20-whats-in-a-detail-that-makes-it-worth-a-tale/</link>
+      <pubDate>Tue, 20 Aug 2024 00:00:00 +0000</pubDate><author>stelis@systematize.it (stelis)</author>
+      <guid>https://details.systematize.it/details/2024-08-20-whats-in-a-detail-that-makes-it-worth-a-tale/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;ve always been fascinated with details.&lt;br&gt;
+They&amp;rsquo;re subtle, easy to ignore but every once in a while they turn out to be important.&lt;/p&gt;
+&lt;p&gt;I have gotten in very interesting (and often heated) discussions about this fascination (mainly at work).&lt;br&gt;
+Taking the time to go over the details, learn, understand and digest takes time.&lt;br&gt;
+And startups are always on a countdown clock and push to get things faster.&lt;br&gt;
+People too. If something seems like it can be ignored, we tend to ignore it.&lt;br&gt;
+I suppose most of our minds are already at capacity, way before someone starts a long-winded argument about things that seem trivial and inconsequential.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

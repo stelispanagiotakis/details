@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Certificates, revisited | Tales Of Details</title>
+<meta name="keywords" content="">
+<meta name="description" content="In the never-ending quest for env parity, I ran into another interesting issue.
+mkcert does not deal with client certificates, it only creates server certs.
+What if we want to do mutual TLS and need them?
+Well, buckle up, we&rsquo;ll take openssl for a ride.
+We&rsquo;ll need the three files shown below in a folder named ca and the scripts that follow.
+# ca/ca.cnf
+[ policy_match ]
+countryName = match
+stateOrProvinceName = match
+organizationName = match
+organizationalUnitName = optional
+commonName = supplied
+emailAddress = optional
+
+[ req ]
+prompt = no
+distinguished_name = dn
+default_md = sha256
+default_bits = 4096
+x509_extensions = v3_ca
+
+[ dn ]
+countryName = GR
+organizationName = MyCompany
+localityName = Athens
+commonName = mycompany-ca
+
+[ v3_ca ]
+subjectKeyIdentifier=hash
+basicConstraints = critical,CA:true
+authorityKeyIdentifier=keyid:always,issuer:always
+keyUsage = critical,keyCertSign,cRLSign
+
+# ca/client.cnf
+[req]
+prompt = no
+distinguished_name = dn
+default_md = sha256
+default_bits = 4096
+req_extensions = v3_req
+
+[ dn ]
+countryName = GR
+organizationName = MyCompnay
+localityName = Athens
+commonName = mycompany-ca
+commonName=*.random.k8s
+
+[ v3_ca ]
+subjectKeyIdentifier=hash
+basicConstraints = critical,CA:true
+authorityKeyIdentifier=keyid:always,issuer:always
+keyUsage = critical,keyCertSign,cRLSign
+
+[ v3_req ]
+subjectKeyIdentifier = hash
+basicConstraints = CA:FALSE
+nsComment = &#34;OpenSSL Generated Certificate&#34;
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = *.random.k8s
+DNS.2 = random.k8s
+DNS.3 = localhost
+DNS.4 = 127.0.0.1
+DNS.5 = myservice
+DNS.6 = myotherservice
+DNS.7 = *.infra
+DNS.8 = *.app
+DNS.9 = *.somedomain.iwantotouse
+
+# ca/server.cnf
+[req]
+prompt = no
+distinguished_name = dn
+default_md = sha256
+default_bits = 4096
+req_extensions = v3_req
+
+[ dn ]
+countryName = GR
+organizationName = mycompany
+localityName = Athens
+commonName = mycompany-ca
+commonName=*.random.k8s
+
+[ v3_ca ]
+subjectKeyIdentifier=hash
+basicConstraints = critical,CA:true
+authorityKeyIdentifier=keyid:always,issuer:always
+keyUsage = critical,keyCertSign,cRLSign
+
+[ v3_req ]
+subjectKeyIdentifier = hash
+basicConstraints = CA:FALSE
+nsComment = &#34;OpenSSL Generated Certificate&#34;
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = *.random.k8s
+DNS.2 = random.k8s
+DNS.3 = localhost
+DNS.4 = 127.0.0.1
+DNS.5 = myservice
+DNS.6 = myotherservice
+DNS.7 = *.infra
+DNS.8 = *.app
+DNS.9 = *.somedomain.iwantotouse
+function create_certs() {
+  local CERTS_DIR=&#34;${CERTS_DIR:-&#34;/opt/my_certs&#34;}&#34;
+  local STORE_PASS=&#34;${STORE_PASS:-changeit}&#34;
+
+  # uninstall any existing CAs handled by mkcert
+  mkcert -uninstall
+
+  # then delete the CA files
+  # and existing client/server certs
+  rm -rf $(mkcert -CAROOT)/*
+  rm -rf ${CERTS_DIR}/*
+
+  # create new ca
+  openssl req -new -nodes \
+    -x509 \
+    -days 3650 \
+    -newkey rsa:2048 \
+    -keyout &#34;${CERTS_DIR}&#34;/ca.key \
+    -out &#34;${CERTS_DIR}&#34;/ca.crt \
+    -config ./ca/ca.cnf
+
+  # create ca pem from crt and key
+  cat &#34;${CERTS_DIR}&#34;/ca.crt &#34;${CERTS_DIR}&#34;/ca.key &gt; &#34;${CERTS_DIR}&#34;/ca.pem
+
+  # create ca p12 from existing java trust store
+  docker run --rm -it -v &#34;${CERTS_DIR}&#34;:/certs  \
+    eclipse-temurin:17-jdk -- keytool -importkeystore \
+   -srckeystore/opt/java/openjdk/lib/security/cacerts \
+   -srcstoretype PKCS12 \
+   -srcstorepass changeit \
+   -destkeystore /certs/ca.p12  \
+   -deststoretype PKCS12 \
+   -deststorepass &#34;${STORE_PASS}&#34;
+
+  # change files to have proper user permissions
+  sudo chown $(id -u):$(id -g) &#34;${CERTS_DIR}&#34;/ca.p12
+
+  # add our new ca to newly created store
+  docker run --rm -it -v ${CERTS_DIR}:/certs  \
+    eclipse-temurin:17-jdk \
+           -- keytool -importcert -alias my_ca_cert \
+                      -file /certs/ca.pem \
+                      -keystore /certs/ca.p12 \
+                      -deststorepass &#34;${STORE_PASS}&#34; \
+                      -noprompt
+
+  # create key and csr for server EKU
+  openssl req -new \
+      -newkey rsa:2048 \
+      -keyout &#34;${CERTS_DIR}&#34;/server.key \
+      -out &#34;${CERTS_DIR}&#34;/server.csr \
+      -config ./ca/server.cnf \
+      -nodes
+
+  # sign the server csr and create cert
+  openssl x509 -req \
+      -days 3650 \
+      -in &#34;${CERTS_DIR}&#34;/server.csr \
+      -CA &#34;${CERTS_DIR}&#34;/ca.crt \
+      -CAkey &#34;${CERTS_DIR}&#34;/ca.key \
+      -CAcreateserial \
+      -out &#34;${CERTS_DIR}&#34;/server.crt \
+      -extfile ./ca/server.cnf \
+      -extensions v3_req
+
+  # create server pem from crt and key
+  cat &#34;${CERTS_DIR}&#34;/server.crt &#34;${CERTS_DIR}&#34;/server.key &gt; &#34;${CERTS_DIR}&#34;/server.pem
+
+  # create server p12 keystore
+  openssl pkcs12 -export \
+      -in &#34;${CERTS_DIR}&#34;/server.crt \
+      -inkey &#34;${CERTS_DIR}&#34;/server.key \
+      -chain \
+      -CAfile &#34;${CERTS_DIR}&#34;/ca.pem \
+      -name server \
+      -out &#34;${CERTS_DIR}&#34;/server.p12 \
+      -password pass:&#34;${STORE_PASS}&#34;
+
+  # change files to have proper user permissions
+  sudo chown $(id -u):$(id -g) &#34;${CERTS_DIR}&#34;/server.p12
+
+  # import server p12 to store if needed
+  docker run --rm -it -v ${CERTS_DIR}:/certs  \
+    eclipse-temurin:17-jdk -- keytool \
+         -importcert -alias server_cert \
+         -file /certs/server.pem \
+         -keystore /certs/ca.p12 \
+         -deststorepass &#34;${STORE_PASS}&#34; \
+         -noprompt
+
+  # create key and csr for client EKU
+  openssl req -new \
+      -newkey rsa:2048 \
+      -keyout &#34;${CERTS_DIR}&#34;/client.key \
+      -out &#34;${CERTS_DIR}&#34;/client.csr \
+      -config ./ca/client.cnf \
+      -nodes
+
+  # sign the client csr and create cert
+  openssl x509 -req \
+      -days 3650 \
+      -in &#34;${CERTS_DIR}&#34;/client.csr \
+      -CA &#34;${CERTS_DIR}&#34;/ca.crt \
+      -CAkey &#34;${CERTS_DIR}&#34;/ca.key \
+      -CAcreateserial \
+      -out &#34;${CERTS_DIR}&#34;/client.crt \
+      -extfile ./ca/client.cnf \
+      -extensions v3_req
+
+  # create client pem from crt and key
+  cat &#34;${CERTS_DIR}&#34;/client.crt &#34;${CERTS_DIR}&#34;/client.key &gt; &#34;${CERTS_DIR}&#34;/client.pem
+
+  # create client p12 keystore
+  openssl pkcs12 -export \
+      -in &#34;${CERTS_DIR}&#34;/client.crt \
+      -inkey &#34;${CERTS_DIR}&#34;/client.key \
+      -chain \
+      -CAfile &#34;${CERTS_DIR}&#34;/ca.pem \
+      -name client \
+      -out &#34;${CERTS_DIR}&#34;/client.p12 \
+      -password pass:&#34;${STORE_PASS}&#34;
+
+  # change files created to have proper user permissions
+  sudo chown $(id -u):$(id -g) &#34;${CERTS_DIR}&#34;/client.p12
+
+  # import client p12 to store if needed
+  docker run --rm -it -v ${PWD}:/certs \
+         eclipse-temurin:17-jdk \
+           -- keytool -importcert -alias client_cert \
+           -file /certs/client.pem \
+           -keystore /certs/ca.p12 \
+           -deststorepass &#34;${STORE_PASS}&#34; \
+           -noprompt
+
+  # list certs in store to verify everything imported
+  docker run --rm -it -v ${PWD}:/certs  \
+         eclipse-temurin:17-jdk \
+           -- keytool -list -v -keystore /certs/ca.p12 \
+           -storepass &#34;${STORE_PASS}&#34;
+
+  # cleanup files we don&#39;t need
+  rm -rf &#34;${CERTS_DIR}&#34;/client.csr
+  rm -rf &#34;${CERTS_DIR}&#34;/server.csr
+
+  # copy ca files to mkcert folder
+  cp &#34;${CERTS_DIR}&#34;/ca.key $(mkcert -CAROOT)/rootCA-key.pem
+  cp &#34;${CERTS_DIR}&#34;/ca.crt $(mkcert -CAROOT)/rootCA.pem
+  cp &#34;${CERTS_DIR}&#34;/ca.srl $(mkcert -CAROOT)/rootCA.srl
+
+  # trust the ca for your system
+  mkcert -install
+
+  # concatenate server cert &#43; ca.cert to use for ingress
+  cat ${CERTS_DIR}/server.crt ${CERTS_DIR}/ca.crt &gt; ${CERTS_DIR}/full.pem
+
+}
+
+function create_tls_secrets() {
+  kubectl create namespace traefik
+  kubectl create namespace infra
+  kubectl create namespace app
+
+  # create ingress certificate
+  kubectl -n traefik create secret tls my-root-ca-tls \
+          --key ${CERTS_DIR}/server.key  \
+          --cert ${CERTS_DIR}/server.crt \
+          --dry-run=client -o yaml \
+          | kubectl apply -f -
+
+  # create secret for plain certificates in infra &#43; app namespaces
+  kubectl -n infra create secret generic certificates \
+        --from-file=ca.crt=${CERTS_DIR}/ca.crt \
+        --from-file=server.crt=${CERTS_DIR}/server.crt \
+        --from-file=server.key=${CERTS_DIR}/server.key \
+        --from-file=client.crt=${CERTS_DIR}/client.crt \
+        --from-file=client.key=${CERTS_DIR}/client.key \
+        --dry-run=client -o yaml \
+        | kubectl apply -f -
+
+  kubectl -n app create secret generic certificates \
+        --from-file=ca.crt=${CERTS_DIR}/ca.crt \
+        --from-file=server.crt=${CERTS_DIR}/server.crt \
+        --from-file=server.key=${CERTS_DIR}/server.key \
+        --from-file=client.crt=${CERTS_DIR}/client.crt \
+        --from-file=client.key=${CERTS_DIR}/client.key \
+        --dry-run=client -o yaml \
+        | kubectl apply -f -
+
+  # create secret for keystores in infra &#43; app namespaces
+  kubectl -n infra create secret generic keystores \
+        --from-file=ca.p12=${CERTS_DIR}/ca.p12\
+        --from-file=server.p12=${CERTS_DIR}/server.p12 \
+        --from-file=client.p12=${CERTS_DIR}/client.p12 \
+        --from-literal=password=&#34;${STORE_PASS}&#34; \
+        --dry-run=client -o yaml \
+        | kubectl apply -f -
+
+  kubectl -n app create secret generic keystores \
+        --from-file=ca.p12=${CERTS_DIR}/ca.p12\
+        --from-file=server.p12=${CERTS_DIR}/server.p12 \
+        --from-file=client.p12=${CERTS_DIR}/client.p12 \
+        --from-literal=password=&#34;${STORE_PASS}&#34; \
+        --dry-run=client -o yaml \
+        | kubectl apply -f -
+}
+Now we&rsquo;ve got 2 secrets per namespace.
+One contains certificates, the other keystores.
+We can mount them to our apps as needed to be used for mutual TLS.">
+<meta name="author" content="
+stelis">
+<link rel="canonical" href="https://details.systematize.it/details/2025-12-13-certificates-revisited/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.da3211e5ef867bf2b75fd5a6515cfed7195c011e8ab735694e203810a827097b.css" integrity="sha256-2jIR5e&#43;Ge/K3X9WmUVz&#43;1xlcAR6KtzVpTiA4EKgnCXs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://details.systematize.it/assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://details.systematize.it/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://details.systematize.it/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://details.systematize.it/apple-touch-icon.png">
+<link rel="mask-icon" href="https://details.systematize.it/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://details.systematize.it/details/2025-12-13-certificates-revisited/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://details.systematize.it/details/2025-12-13-certificates-revisited/">
+  <meta property="og:site_name" content="Tales Of Details">
+  <meta property="og:title" content="Certificates, revisited">
+  <meta property="og:description" content="In the never-ending quest for env parity, I ran into another interesting issue.
+mkcert does not deal with client certificates, it only creates server certs.
+What if we want to do mutual TLS and need them?
+Well, buckle up, we’ll take openssl for a ride.
+We’ll need the three files shown below in a folder named ca and the scripts that follow.
+# ca/ca.cnf [ policy_match ] countryName = match stateOrProvinceName = match organizationName = match organizationalUnitName = optional commonName = supplied emailAddress = optional [ req ] prompt = no distinguished_name = dn default_md = sha256 default_bits = 4096 x509_extensions = v3_ca [ dn ] countryName = GR organizationName = MyCompany localityName = Athens commonName = mycompany-ca [ v3_ca ] subjectKeyIdentifier=hash basicConstraints = critical,CA:true authorityKeyIdentifier=keyid:always,issuer:always keyUsage = critical,keyCertSign,cRLSign # ca/client.cnf [req] prompt = no distinguished_name = dn default_md = sha256 default_bits = 4096 req_extensions = v3_req [ dn ] countryName = GR organizationName = MyCompnay localityName = Athens commonName = mycompany-ca commonName=*.random.k8s [ v3_ca ] subjectKeyIdentifier=hash basicConstraints = critical,CA:true authorityKeyIdentifier=keyid:always,issuer:always keyUsage = critical,keyCertSign,cRLSign [ v3_req ] subjectKeyIdentifier = hash basicConstraints = CA:FALSE nsComment = &#34;OpenSSL Generated Certificate&#34; keyUsage = critical, digitalSignature, keyEncipherment extendedKeyUsage = clientAuth subjectAltName = @alt_names [ alt_names ] DNS.1 = *.random.k8s DNS.2 = random.k8s DNS.3 = localhost DNS.4 = 127.0.0.1 DNS.5 = myservice DNS.6 = myotherservice DNS.7 = *.infra DNS.8 = *.app DNS.9 = *.somedomain.iwantotouse # ca/server.cnf [req] prompt = no distinguished_name = dn default_md = sha256 default_bits = 4096 req_extensions = v3_req [ dn ] countryName = GR organizationName = mycompany localityName = Athens commonName = mycompany-ca commonName=*.random.k8s [ v3_ca ] subjectKeyIdentifier=hash basicConstraints = critical,CA:true authorityKeyIdentifier=keyid:always,issuer:always keyUsage = critical,keyCertSign,cRLSign [ v3_req ] subjectKeyIdentifier = hash basicConstraints = CA:FALSE nsComment = &#34;OpenSSL Generated Certificate&#34; keyUsage = critical, digitalSignature, keyEncipherment extendedKeyUsage = serverAuth subjectAltName = @alt_names [ alt_names ] DNS.1 = *.random.k8s DNS.2 = random.k8s DNS.3 = localhost DNS.4 = 127.0.0.1 DNS.5 = myservice DNS.6 = myotherservice DNS.7 = *.infra DNS.8 = *.app DNS.9 = *.somedomain.iwantotouse function create_certs() { local CERTS_DIR=&#34;${CERTS_DIR:-&#34;/opt/my_certs&#34;}&#34; local STORE_PASS=&#34;${STORE_PASS:-changeit}&#34; # uninstall any existing CAs handled by mkcert mkcert -uninstall # then delete the CA files # and existing client/server certs rm -rf $(mkcert -CAROOT)/* rm -rf ${CERTS_DIR}/* # create new ca openssl req -new -nodes \ -x509 \ -days 3650 \ -newkey rsa:2048 \ -keyout &#34;${CERTS_DIR}&#34;/ca.key \ -out &#34;${CERTS_DIR}&#34;/ca.crt \ -config ./ca/ca.cnf # create ca pem from crt and key cat &#34;${CERTS_DIR}&#34;/ca.crt &#34;${CERTS_DIR}&#34;/ca.key &gt; &#34;${CERTS_DIR}&#34;/ca.pem # create ca p12 from existing java trust store docker run --rm -it -v &#34;${CERTS_DIR}&#34;:/certs \ eclipse-temurin:17-jdk -- keytool -importkeystore \ -srckeystore/opt/java/openjdk/lib/security/cacerts \ -srcstoretype PKCS12 \ -srcstorepass changeit \ -destkeystore /certs/ca.p12 \ -deststoretype PKCS12 \ -deststorepass &#34;${STORE_PASS}&#34; # change files to have proper user permissions sudo chown $(id -u):$(id -g) &#34;${CERTS_DIR}&#34;/ca.p12 # add our new ca to newly created store docker run --rm -it -v ${CERTS_DIR}:/certs \ eclipse-temurin:17-jdk \ -- keytool -importcert -alias my_ca_cert \ -file /certs/ca.pem \ -keystore /certs/ca.p12 \ -deststorepass &#34;${STORE_PASS}&#34; \ -noprompt # create key and csr for server EKU openssl req -new \ -newkey rsa:2048 \ -keyout &#34;${CERTS_DIR}&#34;/server.key \ -out &#34;${CERTS_DIR}&#34;/server.csr \ -config ./ca/server.cnf \ -nodes # sign the server csr and create cert openssl x509 -req \ -days 3650 \ -in &#34;${CERTS_DIR}&#34;/server.csr \ -CA &#34;${CERTS_DIR}&#34;/ca.crt \ -CAkey &#34;${CERTS_DIR}&#34;/ca.key \ -CAcreateserial \ -out &#34;${CERTS_DIR}&#34;/server.crt \ -extfile ./ca/server.cnf \ -extensions v3_req # create server pem from crt and key cat &#34;${CERTS_DIR}&#34;/server.crt &#34;${CERTS_DIR}&#34;/server.key &gt; &#34;${CERTS_DIR}&#34;/server.pem # create server p12 keystore openssl pkcs12 -export \ -in &#34;${CERTS_DIR}&#34;/server.crt \ -inkey &#34;${CERTS_DIR}&#34;/server.key \ -chain \ -CAfile &#34;${CERTS_DIR}&#34;/ca.pem \ -name server \ -out &#34;${CERTS_DIR}&#34;/server.p12 \ -password pass:&#34;${STORE_PASS}&#34; # change files to have proper user permissions sudo chown $(id -u):$(id -g) &#34;${CERTS_DIR}&#34;/server.p12 # import server p12 to store if needed docker run --rm -it -v ${CERTS_DIR}:/certs \ eclipse-temurin:17-jdk -- keytool \ -importcert -alias server_cert \ -file /certs/server.pem \ -keystore /certs/ca.p12 \ -deststorepass &#34;${STORE_PASS}&#34; \ -noprompt # create key and csr for client EKU openssl req -new \ -newkey rsa:2048 \ -keyout &#34;${CERTS_DIR}&#34;/client.key \ -out &#34;${CERTS_DIR}&#34;/client.csr \ -config ./ca/client.cnf \ -nodes # sign the client csr and create cert openssl x509 -req \ -days 3650 \ -in &#34;${CERTS_DIR}&#34;/client.csr \ -CA &#34;${CERTS_DIR}&#34;/ca.crt \ -CAkey &#34;${CERTS_DIR}&#34;/ca.key \ -CAcreateserial \ -out &#34;${CERTS_DIR}&#34;/client.crt \ -extfile ./ca/client.cnf \ -extensions v3_req # create client pem from crt and key cat &#34;${CERTS_DIR}&#34;/client.crt &#34;${CERTS_DIR}&#34;/client.key &gt; &#34;${CERTS_DIR}&#34;/client.pem # create client p12 keystore openssl pkcs12 -export \ -in &#34;${CERTS_DIR}&#34;/client.crt \ -inkey &#34;${CERTS_DIR}&#34;/client.key \ -chain \ -CAfile &#34;${CERTS_DIR}&#34;/ca.pem \ -name client \ -out &#34;${CERTS_DIR}&#34;/client.p12 \ -password pass:&#34;${STORE_PASS}&#34; # change files created to have proper user permissions sudo chown $(id -u):$(id -g) &#34;${CERTS_DIR}&#34;/client.p12 # import client p12 to store if needed docker run --rm -it -v ${PWD}:/certs \ eclipse-temurin:17-jdk \ -- keytool -importcert -alias client_cert \ -file /certs/client.pem \ -keystore /certs/ca.p12 \ -deststorepass &#34;${STORE_PASS}&#34; \ -noprompt # list certs in store to verify everything imported docker run --rm -it -v ${PWD}:/certs \ eclipse-temurin:17-jdk \ -- keytool -list -v -keystore /certs/ca.p12 \ -storepass &#34;${STORE_PASS}&#34; # cleanup files we don&#39;t need rm -rf &#34;${CERTS_DIR}&#34;/client.csr rm -rf &#34;${CERTS_DIR}&#34;/server.csr # copy ca files to mkcert folder cp &#34;${CERTS_DIR}&#34;/ca.key $(mkcert -CAROOT)/rootCA-key.pem cp &#34;${CERTS_DIR}&#34;/ca.crt $(mkcert -CAROOT)/rootCA.pem cp &#34;${CERTS_DIR}&#34;/ca.srl $(mkcert -CAROOT)/rootCA.srl # trust the ca for your system mkcert -install # concatenate server cert &#43; ca.cert to use for ingress cat ${CERTS_DIR}/server.crt ${CERTS_DIR}/ca.crt &gt; ${CERTS_DIR}/full.pem } function create_tls_secrets() { kubectl create namespace traefik kubectl create namespace infra kubectl create namespace app # create ingress certificate kubectl -n traefik create secret tls my-root-ca-tls \ --key ${CERTS_DIR}/server.key \ --cert ${CERTS_DIR}/server.crt \ --dry-run=client -o yaml \ | kubectl apply -f - # create secret for plain certificates in infra &#43; app namespaces kubectl -n infra create secret generic certificates \ --from-file=ca.crt=${CERTS_DIR}/ca.crt \ --from-file=server.crt=${CERTS_DIR}/server.crt \ --from-file=server.key=${CERTS_DIR}/server.key \ --from-file=client.crt=${CERTS_DIR}/client.crt \ --from-file=client.key=${CERTS_DIR}/client.key \ --dry-run=client -o yaml \ | kubectl apply -f - kubectl -n app create secret generic certificates \ --from-file=ca.crt=${CERTS_DIR}/ca.crt \ --from-file=server.crt=${CERTS_DIR}/server.crt \ --from-file=server.key=${CERTS_DIR}/server.key \ --from-file=client.crt=${CERTS_DIR}/client.crt \ --from-file=client.key=${CERTS_DIR}/client.key \ --dry-run=client -o yaml \ | kubectl apply -f - # create secret for keystores in infra &#43; app namespaces kubectl -n infra create secret generic keystores \ --from-file=ca.p12=${CERTS_DIR}/ca.p12\ --from-file=server.p12=${CERTS_DIR}/server.p12 \ --from-file=client.p12=${CERTS_DIR}/client.p12 \ --from-literal=password=&#34;${STORE_PASS}&#34; \ --dry-run=client -o yaml \ | kubectl apply -f - kubectl -n app create secret generic keystores \ --from-file=ca.p12=${CERTS_DIR}/ca.p12\ --from-file=server.p12=${CERTS_DIR}/server.p12 \ --from-file=client.p12=${CERTS_DIR}/client.p12 \ --from-literal=password=&#34;${STORE_PASS}&#34; \ --dry-run=client -o yaml \ | kubectl apply -f - } Now we’ve got 2 secrets per namespace.
+One contains certificates, the other keystores.
+We can mount them to our apps as needed to be used for mutual TLS.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="details">
+    <meta property="article:published_time" content="2025-12-13T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-12-13T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Certificates, revisited">
+<meta name="twitter:description" content="In the never-ending quest for env parity, I ran into another interesting issue.
+mkcert does not deal with client certificates, it only creates server certs.
+What if we want to do mutual TLS and need them?
+Well, buckle up, we&rsquo;ll take openssl for a ride.
+We&rsquo;ll need the three files shown below in a folder named ca and the scripts that follow.
+# ca/ca.cnf
+[ policy_match ]
+countryName = match
+stateOrProvinceName = match
+organizationName = match
+organizationalUnitName = optional
+commonName = supplied
+emailAddress = optional
+
+[ req ]
+prompt = no
+distinguished_name = dn
+default_md = sha256
+default_bits = 4096
+x509_extensions = v3_ca
+
+[ dn ]
+countryName = GR
+organizationName = MyCompany
+localityName = Athens
+commonName = mycompany-ca
+
+[ v3_ca ]
+subjectKeyIdentifier=hash
+basicConstraints = critical,CA:true
+authorityKeyIdentifier=keyid:always,issuer:always
+keyUsage = critical,keyCertSign,cRLSign
+
+# ca/client.cnf
+[req]
+prompt = no
+distinguished_name = dn
+default_md = sha256
+default_bits = 4096
+req_extensions = v3_req
+
+[ dn ]
+countryName = GR
+organizationName = MyCompnay
+localityName = Athens
+commonName = mycompany-ca
+commonName=*.random.k8s
+
+[ v3_ca ]
+subjectKeyIdentifier=hash
+basicConstraints = critical,CA:true
+authorityKeyIdentifier=keyid:always,issuer:always
+keyUsage = critical,keyCertSign,cRLSign
+
+[ v3_req ]
+subjectKeyIdentifier = hash
+basicConstraints = CA:FALSE
+nsComment = &#34;OpenSSL Generated Certificate&#34;
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = *.random.k8s
+DNS.2 = random.k8s
+DNS.3 = localhost
+DNS.4 = 127.0.0.1
+DNS.5 = myservice
+DNS.6 = myotherservice
+DNS.7 = *.infra
+DNS.8 = *.app
+DNS.9 = *.somedomain.iwantotouse
+
+# ca/server.cnf
+[req]
+prompt = no
+distinguished_name = dn
+default_md = sha256
+default_bits = 4096
+req_extensions = v3_req
+
+[ dn ]
+countryName = GR
+organizationName = mycompany
+localityName = Athens
+commonName = mycompany-ca
+commonName=*.random.k8s
+
+[ v3_ca ]
+subjectKeyIdentifier=hash
+basicConstraints = critical,CA:true
+authorityKeyIdentifier=keyid:always,issuer:always
+keyUsage = critical,keyCertSign,cRLSign
+
+[ v3_req ]
+subjectKeyIdentifier = hash
+basicConstraints = CA:FALSE
+nsComment = &#34;OpenSSL Generated Certificate&#34;
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = *.random.k8s
+DNS.2 = random.k8s
+DNS.3 = localhost
+DNS.4 = 127.0.0.1
+DNS.5 = myservice
+DNS.6 = myotherservice
+DNS.7 = *.infra
+DNS.8 = *.app
+DNS.9 = *.somedomain.iwantotouse
+function create_certs() {
+  local CERTS_DIR=&#34;${CERTS_DIR:-&#34;/opt/my_certs&#34;}&#34;
+  local STORE_PASS=&#34;${STORE_PASS:-changeit}&#34;
+
+  # uninstall any existing CAs handled by mkcert
+  mkcert -uninstall
+
+  # then delete the CA files
+  # and existing client/server certs
+  rm -rf $(mkcert -CAROOT)/*
+  rm -rf ${CERTS_DIR}/*
+
+  # create new ca
+  openssl req -new -nodes \
+    -x509 \
+    -days 3650 \
+    -newkey rsa:2048 \
+    -keyout &#34;${CERTS_DIR}&#34;/ca.key \
+    -out &#34;${CERTS_DIR}&#34;/ca.crt \
+    -config ./ca/ca.cnf
+
+  # create ca pem from crt and key
+  cat &#34;${CERTS_DIR}&#34;/ca.crt &#34;${CERTS_DIR}&#34;/ca.key &gt; &#34;${CERTS_DIR}&#34;/ca.pem
+
+  # create ca p12 from existing java trust store
+  docker run --rm -it -v &#34;${CERTS_DIR}&#34;:/certs  \
+    eclipse-temurin:17-jdk -- keytool -importkeystore \
+   -srckeystore/opt/java/openjdk/lib/security/cacerts \
+   -srcstoretype PKCS12 \
+   -srcstorepass changeit \
+   -destkeystore /certs/ca.p12  \
+   -deststoretype PKCS12 \
+   -deststorepass &#34;${STORE_PASS}&#34;
+
+  # change files to have proper user permissions
+  sudo chown $(id -u):$(id -g) &#34;${CERTS_DIR}&#34;/ca.p12
+
+  # add our new ca to newly created store
+  docker run --rm -it -v ${CERTS_DIR}:/certs  \
+    eclipse-temurin:17-jdk \
+           -- keytool -importcert -alias my_ca_cert \
+                      -file /certs/ca.pem \
+                      -keystore /certs/ca.p12 \
+                      -deststorepass &#34;${STORE_PASS}&#34; \
+                      -noprompt
+
+  # create key and csr for server EKU
+  openssl req -new \
+      -newkey rsa:2048 \
+      -keyout &#34;${CERTS_DIR}&#34;/server.key \
+      -out &#34;${CERTS_DIR}&#34;/server.csr \
+      -config ./ca/server.cnf \
+      -nodes
+
+  # sign the server csr and create cert
+  openssl x509 -req \
+      -days 3650 \
+      -in &#34;${CERTS_DIR}&#34;/server.csr \
+      -CA &#34;${CERTS_DIR}&#34;/ca.crt \
+      -CAkey &#34;${CERTS_DIR}&#34;/ca.key \
+      -CAcreateserial \
+      -out &#34;${CERTS_DIR}&#34;/server.crt \
+      -extfile ./ca/server.cnf \
+      -extensions v3_req
+
+  # create server pem from crt and key
+  cat &#34;${CERTS_DIR}&#34;/server.crt &#34;${CERTS_DIR}&#34;/server.key &gt; &#34;${CERTS_DIR}&#34;/server.pem
+
+  # create server p12 keystore
+  openssl pkcs12 -export \
+      -in &#34;${CERTS_DIR}&#34;/server.crt \
+      -inkey &#34;${CERTS_DIR}&#34;/server.key \
+      -chain \
+      -CAfile &#34;${CERTS_DIR}&#34;/ca.pem \
+      -name server \
+      -out &#34;${CERTS_DIR}&#34;/server.p12 \
+      -password pass:&#34;${STORE_PASS}&#34;
+
+  # change files to have proper user permissions
+  sudo chown $(id -u):$(id -g) &#34;${CERTS_DIR}&#34;/server.p12
+
+  # import server p12 to store if needed
+  docker run --rm -it -v ${CERTS_DIR}:/certs  \
+    eclipse-temurin:17-jdk -- keytool \
+         -importcert -alias server_cert \
+         -file /certs/server.pem \
+         -keystore /certs/ca.p12 \
+         -deststorepass &#34;${STORE_PASS}&#34; \
+         -noprompt
+
+  # create key and csr for client EKU
+  openssl req -new \
+      -newkey rsa:2048 \
+      -keyout &#34;${CERTS_DIR}&#34;/client.key \
+      -out &#34;${CERTS_DIR}&#34;/client.csr \
+      -config ./ca/client.cnf \
+      -nodes
+
+  # sign the client csr and create cert
+  openssl x509 -req \
+      -days 3650 \
+      -in &#34;${CERTS_DIR}&#34;/client.csr \
+      -CA &#34;${CERTS_DIR}&#34;/ca.crt \
+      -CAkey &#34;${CERTS_DIR}&#34;/ca.key \
+      -CAcreateserial \
+      -out &#34;${CERTS_DIR}&#34;/client.crt \
+      -extfile ./ca/client.cnf \
+      -extensions v3_req
+
+  # create client pem from crt and key
+  cat &#34;${CERTS_DIR}&#34;/client.crt &#34;${CERTS_DIR}&#34;/client.key &gt; &#34;${CERTS_DIR}&#34;/client.pem
+
+  # create client p12 keystore
+  openssl pkcs12 -export \
+      -in &#34;${CERTS_DIR}&#34;/client.crt \
+      -inkey &#34;${CERTS_DIR}&#34;/client.key \
+      -chain \
+      -CAfile &#34;${CERTS_DIR}&#34;/ca.pem \
+      -name client \
+      -out &#34;${CERTS_DIR}&#34;/client.p12 \
+      -password pass:&#34;${STORE_PASS}&#34;
+
+  # change files created to have proper user permissions
+  sudo chown $(id -u):$(id -g) &#34;${CERTS_DIR}&#34;/client.p12
+
+  # import client p12 to store if needed
+  docker run --rm -it -v ${PWD}:/certs \
+         eclipse-temurin:17-jdk \
+           -- keytool -importcert -alias client_cert \
+           -file /certs/client.pem \
+           -keystore /certs/ca.p12 \
+           -deststorepass &#34;${STORE_PASS}&#34; \
+           -noprompt
+
+  # list certs in store to verify everything imported
+  docker run --rm -it -v ${PWD}:/certs  \
+         eclipse-temurin:17-jdk \
+           -- keytool -list -v -keystore /certs/ca.p12 \
+           -storepass &#34;${STORE_PASS}&#34;
+
+  # cleanup files we don&#39;t need
+  rm -rf &#34;${CERTS_DIR}&#34;/client.csr
+  rm -rf &#34;${CERTS_DIR}&#34;/server.csr
+
+  # copy ca files to mkcert folder
+  cp &#34;${CERTS_DIR}&#34;/ca.key $(mkcert -CAROOT)/rootCA-key.pem
+  cp &#34;${CERTS_DIR}&#34;/ca.crt $(mkcert -CAROOT)/rootCA.pem
+  cp &#34;${CERTS_DIR}&#34;/ca.srl $(mkcert -CAROOT)/rootCA.srl
+
+  # trust the ca for your system
+  mkcert -install
+
+  # concatenate server cert &#43; ca.cert to use for ingress
+  cat ${CERTS_DIR}/server.crt ${CERTS_DIR}/ca.crt &gt; ${CERTS_DIR}/full.pem
+
+}
+
+function create_tls_secrets() {
+  kubectl create namespace traefik
+  kubectl create namespace infra
+  kubectl create namespace app
+
+  # create ingress certificate
+  kubectl -n traefik create secret tls my-root-ca-tls \
+          --key ${CERTS_DIR}/server.key  \
+          --cert ${CERTS_DIR}/server.crt \
+          --dry-run=client -o yaml \
+          | kubectl apply -f -
+
+  # create secret for plain certificates in infra &#43; app namespaces
+  kubectl -n infra create secret generic certificates \
+        --from-file=ca.crt=${CERTS_DIR}/ca.crt \
+        --from-file=server.crt=${CERTS_DIR}/server.crt \
+        --from-file=server.key=${CERTS_DIR}/server.key \
+        --from-file=client.crt=${CERTS_DIR}/client.crt \
+        --from-file=client.key=${CERTS_DIR}/client.key \
+        --dry-run=client -o yaml \
+        | kubectl apply -f -
+
+  kubectl -n app create secret generic certificates \
+        --from-file=ca.crt=${CERTS_DIR}/ca.crt \
+        --from-file=server.crt=${CERTS_DIR}/server.crt \
+        --from-file=server.key=${CERTS_DIR}/server.key \
+        --from-file=client.crt=${CERTS_DIR}/client.crt \
+        --from-file=client.key=${CERTS_DIR}/client.key \
+        --dry-run=client -o yaml \
+        | kubectl apply -f -
+
+  # create secret for keystores in infra &#43; app namespaces
+  kubectl -n infra create secret generic keystores \
+        --from-file=ca.p12=${CERTS_DIR}/ca.p12\
+        --from-file=server.p12=${CERTS_DIR}/server.p12 \
+        --from-file=client.p12=${CERTS_DIR}/client.p12 \
+        --from-literal=password=&#34;${STORE_PASS}&#34; \
+        --dry-run=client -o yaml \
+        | kubectl apply -f -
+
+  kubectl -n app create secret generic keystores \
+        --from-file=ca.p12=${CERTS_DIR}/ca.p12\
+        --from-file=server.p12=${CERTS_DIR}/server.p12 \
+        --from-file=client.p12=${CERTS_DIR}/client.p12 \
+        --from-literal=password=&#34;${STORE_PASS}&#34; \
+        --dry-run=client -o yaml \
+        | kubectl apply -f -
+}
+Now we&rsquo;ve got 2 secrets per namespace.
+One contains certificates, the other keystores.
+We can mount them to our apps as needed to be used for mutual TLS.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Details",
+      "item": "https://details.systematize.it/details/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Certificates, revisited",
+      "item": "https://details.systematize.it/details/2025-12-13-certificates-revisited/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Certificates, revisited",
+  "name": "Certificates, revisited",
+  "description": "In the never-ending quest for env parity, I ran into another interesting issue.\nmkcert does not deal with client certificates, it only creates server certs.\nWhat if we want to do mutual TLS and need them?\nWell, buckle up, we\u0026rsquo;ll take openssl for a ride.\nWe\u0026rsquo;ll need the three files shown below in a folder named ca and the scripts that follow.\n# ca/ca.cnf [ policy_match ] countryName = match stateOrProvinceName = match organizationName = match organizationalUnitName = optional commonName = supplied emailAddress = optional [ req ] prompt = no distinguished_name = dn default_md = sha256 default_bits = 4096 x509_extensions = v3_ca [ dn ] countryName = GR organizationName = MyCompany localityName = Athens commonName = mycompany-ca [ v3_ca ] subjectKeyIdentifier=hash basicConstraints = critical,CA:true authorityKeyIdentifier=keyid:always,issuer:always keyUsage = critical,keyCertSign,cRLSign # ca/client.cnf [req] prompt = no distinguished_name = dn default_md = sha256 default_bits = 4096 req_extensions = v3_req [ dn ] countryName = GR organizationName = MyCompnay localityName = Athens commonName = mycompany-ca commonName=*.random.k8s [ v3_ca ] subjectKeyIdentifier=hash basicConstraints = critical,CA:true authorityKeyIdentifier=keyid:always,issuer:always keyUsage = critical,keyCertSign,cRLSign [ v3_req ] subjectKeyIdentifier = hash basicConstraints = CA:FALSE nsComment = \u0026#34;OpenSSL Generated Certificate\u0026#34; keyUsage = critical, digitalSignature, keyEncipherment extendedKeyUsage = clientAuth subjectAltName = @alt_names [ alt_names ] DNS.1 = *.random.k8s DNS.2 = random.k8s DNS.3 = localhost DNS.4 = 127.0.0.1 DNS.5 = myservice DNS.6 = myotherservice DNS.7 = *.infra DNS.8 = *.app DNS.9 = *.somedomain.iwantotouse # ca/server.cnf [req] prompt = no distinguished_name = dn default_md = sha256 default_bits = 4096 req_extensions = v3_req [ dn ] countryName = GR organizationName = mycompany localityName = Athens commonName = mycompany-ca commonName=*.random.k8s [ v3_ca ] subjectKeyIdentifier=hash basicConstraints = critical,CA:true authorityKeyIdentifier=keyid:always,issuer:always keyUsage = critical,keyCertSign,cRLSign [ v3_req ] subjectKeyIdentifier = hash basicConstraints = CA:FALSE nsComment = \u0026#34;OpenSSL Generated Certificate\u0026#34; keyUsage = critical, digitalSignature, keyEncipherment extendedKeyUsage = serverAuth subjectAltName = @alt_names [ alt_names ] DNS.1 = *.random.k8s DNS.2 = random.k8s DNS.3 = localhost DNS.4 = 127.0.0.1 DNS.5 = myservice DNS.6 = myotherservice DNS.7 = *.infra DNS.8 = *.app DNS.9 = *.somedomain.iwantotouse function create_certs() { local CERTS_DIR=\u0026#34;${CERTS_DIR:-\u0026#34;/opt/my_certs\u0026#34;}\u0026#34; local STORE_PASS=\u0026#34;${STORE_PASS:-changeit}\u0026#34; # uninstall any existing CAs handled by mkcert mkcert -uninstall # then delete the CA files # and existing client/server certs rm -rf $(mkcert -CAROOT)/* rm -rf ${CERTS_DIR}/* # create new ca openssl req -new -nodes \\ -x509 \\ -days 3650 \\ -newkey rsa:2048 \\ -keyout \u0026#34;${CERTS_DIR}\u0026#34;/ca.key \\ -out \u0026#34;${CERTS_DIR}\u0026#34;/ca.crt \\ -config ./ca/ca.cnf # create ca pem from crt and key cat \u0026#34;${CERTS_DIR}\u0026#34;/ca.crt \u0026#34;${CERTS_DIR}\u0026#34;/ca.key \u0026gt; \u0026#34;${CERTS_DIR}\u0026#34;/ca.pem # create ca p12 from existing java trust store docker run --rm -it -v \u0026#34;${CERTS_DIR}\u0026#34;:/certs \\ eclipse-temurin:17-jdk -- keytool -importkeystore \\ -srckeystore/opt/java/openjdk/lib/security/cacerts \\ -srcstoretype PKCS12 \\ -srcstorepass changeit \\ -destkeystore /certs/ca.p12 \\ -deststoretype PKCS12 \\ -deststorepass \u0026#34;${STORE_PASS}\u0026#34; # change files to have proper user permissions sudo chown $(id -u):$(id -g) \u0026#34;${CERTS_DIR}\u0026#34;/ca.p12 # add our new ca to newly created store docker run --rm -it -v ${CERTS_DIR}:/certs \\ eclipse-temurin:17-jdk \\ -- keytool -importcert -alias my_ca_cert \\ -file /certs/ca.pem \\ -keystore /certs/ca.p12 \\ -deststorepass \u0026#34;${STORE_PASS}\u0026#34; \\ -noprompt # create key and csr for server EKU openssl req -new \\ -newkey rsa:2048 \\ -keyout \u0026#34;${CERTS_DIR}\u0026#34;/server.key \\ -out \u0026#34;${CERTS_DIR}\u0026#34;/server.csr \\ -config ./ca/server.cnf \\ -nodes # sign the server csr and create cert openssl x509 -req \\ -days 3650 \\ -in \u0026#34;${CERTS_DIR}\u0026#34;/server.csr \\ -CA \u0026#34;${CERTS_DIR}\u0026#34;/ca.crt \\ -CAkey \u0026#34;${CERTS_DIR}\u0026#34;/ca.key \\ -CAcreateserial \\ -out \u0026#34;${CERTS_DIR}\u0026#34;/server.crt \\ -extfile ./ca/server.cnf \\ -extensions v3_req # create server pem from crt and key cat \u0026#34;${CERTS_DIR}\u0026#34;/server.crt \u0026#34;${CERTS_DIR}\u0026#34;/server.key \u0026gt; \u0026#34;${CERTS_DIR}\u0026#34;/server.pem # create server p12 keystore openssl pkcs12 -export \\ -in \u0026#34;${CERTS_DIR}\u0026#34;/server.crt \\ -inkey \u0026#34;${CERTS_DIR}\u0026#34;/server.key \\ -chain \\ -CAfile \u0026#34;${CERTS_DIR}\u0026#34;/ca.pem \\ -name server \\ -out \u0026#34;${CERTS_DIR}\u0026#34;/server.p12 \\ -password pass:\u0026#34;${STORE_PASS}\u0026#34; # change files to have proper user permissions sudo chown $(id -u):$(id -g) \u0026#34;${CERTS_DIR}\u0026#34;/server.p12 # import server p12 to store if needed docker run --rm -it -v ${CERTS_DIR}:/certs \\ eclipse-temurin:17-jdk -- keytool \\ -importcert -alias server_cert \\ -file /certs/server.pem \\ -keystore /certs/ca.p12 \\ -deststorepass \u0026#34;${STORE_PASS}\u0026#34; \\ -noprompt # create key and csr for client EKU openssl req -new \\ -newkey rsa:2048 \\ -keyout \u0026#34;${CERTS_DIR}\u0026#34;/client.key \\ -out \u0026#34;${CERTS_DIR}\u0026#34;/client.csr \\ -config ./ca/client.cnf \\ -nodes # sign the client csr and create cert openssl x509 -req \\ -days 3650 \\ -in \u0026#34;${CERTS_DIR}\u0026#34;/client.csr \\ -CA \u0026#34;${CERTS_DIR}\u0026#34;/ca.crt \\ -CAkey \u0026#34;${CERTS_DIR}\u0026#34;/ca.key \\ -CAcreateserial \\ -out \u0026#34;${CERTS_DIR}\u0026#34;/client.crt \\ -extfile ./ca/client.cnf \\ -extensions v3_req # create client pem from crt and key cat \u0026#34;${CERTS_DIR}\u0026#34;/client.crt \u0026#34;${CERTS_DIR}\u0026#34;/client.key \u0026gt; \u0026#34;${CERTS_DIR}\u0026#34;/client.pem # create client p12 keystore openssl pkcs12 -export \\ -in \u0026#34;${CERTS_DIR}\u0026#34;/client.crt \\ -inkey \u0026#34;${CERTS_DIR}\u0026#34;/client.key \\ -chain \\ -CAfile \u0026#34;${CERTS_DIR}\u0026#34;/ca.pem \\ -name client \\ -out \u0026#34;${CERTS_DIR}\u0026#34;/client.p12 \\ -password pass:\u0026#34;${STORE_PASS}\u0026#34; # change files created to have proper user permissions sudo chown $(id -u):$(id -g) \u0026#34;${CERTS_DIR}\u0026#34;/client.p12 # import client p12 to store if needed docker run --rm -it -v ${PWD}:/certs \\ eclipse-temurin:17-jdk \\ -- keytool -importcert -alias client_cert \\ -file /certs/client.pem \\ -keystore /certs/ca.p12 \\ -deststorepass \u0026#34;${STORE_PASS}\u0026#34; \\ -noprompt # list certs in store to verify everything imported docker run --rm -it -v ${PWD}:/certs \\ eclipse-temurin:17-jdk \\ -- keytool -list -v -keystore /certs/ca.p12 \\ -storepass \u0026#34;${STORE_PASS}\u0026#34; # cleanup files we don\u0026#39;t need rm -rf \u0026#34;${CERTS_DIR}\u0026#34;/client.csr rm -rf \u0026#34;${CERTS_DIR}\u0026#34;/server.csr # copy ca files to mkcert folder cp \u0026#34;${CERTS_DIR}\u0026#34;/ca.key $(mkcert -CAROOT)/rootCA-key.pem cp \u0026#34;${CERTS_DIR}\u0026#34;/ca.crt $(mkcert -CAROOT)/rootCA.pem cp \u0026#34;${CERTS_DIR}\u0026#34;/ca.srl $(mkcert -CAROOT)/rootCA.srl # trust the ca for your system mkcert -install # concatenate server cert + ca.cert to use for ingress cat ${CERTS_DIR}/server.crt ${CERTS_DIR}/ca.crt \u0026gt; ${CERTS_DIR}/full.pem } function create_tls_secrets() { kubectl create namespace traefik kubectl create namespace infra kubectl create namespace app # create ingress certificate kubectl -n traefik create secret tls my-root-ca-tls \\ --key ${CERTS_DIR}/server.key \\ --cert ${CERTS_DIR}/server.crt \\ --dry-run=client -o yaml \\ | kubectl apply -f - # create secret for plain certificates in infra + app namespaces kubectl -n infra create secret generic certificates \\ --from-file=ca.crt=${CERTS_DIR}/ca.crt \\ --from-file=server.crt=${CERTS_DIR}/server.crt \\ --from-file=server.key=${CERTS_DIR}/server.key \\ --from-file=client.crt=${CERTS_DIR}/client.crt \\ --from-file=client.key=${CERTS_DIR}/client.key \\ --dry-run=client -o yaml \\ | kubectl apply -f - kubectl -n app create secret generic certificates \\ --from-file=ca.crt=${CERTS_DIR}/ca.crt \\ --from-file=server.crt=${CERTS_DIR}/server.crt \\ --from-file=server.key=${CERTS_DIR}/server.key \\ --from-file=client.crt=${CERTS_DIR}/client.crt \\ --from-file=client.key=${CERTS_DIR}/client.key \\ --dry-run=client -o yaml \\ | kubectl apply -f - # create secret for keystores in infra + app namespaces kubectl -n infra create secret generic keystores \\ --from-file=ca.p12=${CERTS_DIR}/ca.p12\\ --from-file=server.p12=${CERTS_DIR}/server.p12 \\ --from-file=client.p12=${CERTS_DIR}/client.p12 \\ --from-literal=password=\u0026#34;${STORE_PASS}\u0026#34; \\ --dry-run=client -o yaml \\ | kubectl apply -f - kubectl -n app create secret generic keystores \\ --from-file=ca.p12=${CERTS_DIR}/ca.p12\\ --from-file=server.p12=${CERTS_DIR}/server.p12 \\ --from-file=client.p12=${CERTS_DIR}/client.p12 \\ --from-literal=password=\u0026#34;${STORE_PASS}\u0026#34; \\ --dry-run=client -o yaml \\ | kubectl apply -f - } Now we\u0026rsquo;ve got 2 secrets per namespace.\nOne contains certificates, the other keystores.\nWe can mount them to our apps as needed to be used for mutual TLS.\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "In the never-ending quest for env parity, I ran into another interesting issue.\nmkcert does not deal with client certificates, it only creates server certs.\nWhat if we want to do mutual TLS and need them?\nWell, buckle up, we’ll take openssl for a ride.\nWe’ll need the three files shown below in a folder named ca and the scripts that follow.\n# ca/ca.cnf [ policy_match ] countryName = match stateOrProvinceName = match organizationName = match organizationalUnitName = optional commonName = supplied emailAddress = optional [ req ] prompt = no distinguished_name = dn default_md = sha256 default_bits = 4096 x509_extensions = v3_ca [ dn ] countryName = GR organizationName = MyCompany localityName = Athens commonName = mycompany-ca [ v3_ca ] subjectKeyIdentifier=hash basicConstraints = critical,CA:true authorityKeyIdentifier=keyid:always,issuer:always keyUsage = critical,keyCertSign,cRLSign # ca/client.cnf [req] prompt = no distinguished_name = dn default_md = sha256 default_bits = 4096 req_extensions = v3_req [ dn ] countryName = GR organizationName = MyCompnay localityName = Athens commonName = mycompany-ca commonName=*.random.k8s [ v3_ca ] subjectKeyIdentifier=hash basicConstraints = critical,CA:true authorityKeyIdentifier=keyid:always,issuer:always keyUsage = critical,keyCertSign,cRLSign [ v3_req ] subjectKeyIdentifier = hash basicConstraints = CA:FALSE nsComment = \"OpenSSL Generated Certificate\" keyUsage = critical, digitalSignature, keyEncipherment extendedKeyUsage = clientAuth subjectAltName = @alt_names [ alt_names ] DNS.1 = *.random.k8s DNS.2 = random.k8s DNS.3 = localhost DNS.4 = 127.0.0.1 DNS.5 = myservice DNS.6 = myotherservice DNS.7 = *.infra DNS.8 = *.app DNS.9 = *.somedomain.iwantotouse # ca/server.cnf [req] prompt = no distinguished_name = dn default_md = sha256 default_bits = 4096 req_extensions = v3_req [ dn ] countryName = GR organizationName = mycompany localityName = Athens commonName = mycompany-ca commonName=*.random.k8s [ v3_ca ] subjectKeyIdentifier=hash basicConstraints = critical,CA:true authorityKeyIdentifier=keyid:always,issuer:always keyUsage = critical,keyCertSign,cRLSign [ v3_req ] subjectKeyIdentifier = hash basicConstraints = CA:FALSE nsComment = \"OpenSSL Generated Certificate\" keyUsage = critical, digitalSignature, keyEncipherment extendedKeyUsage = serverAuth subjectAltName = @alt_names [ alt_names ] DNS.1 = *.random.k8s DNS.2 = random.k8s DNS.3 = localhost DNS.4 = 127.0.0.1 DNS.5 = myservice DNS.6 = myotherservice DNS.7 = *.infra DNS.8 = *.app DNS.9 = *.somedomain.iwantotouse function create_certs() { local CERTS_DIR=\"${CERTS_DIR:-\"/opt/my_certs\"}\" local STORE_PASS=\"${STORE_PASS:-changeit}\" # uninstall any existing CAs handled by mkcert mkcert -uninstall # then delete the CA files # and existing client/server certs rm -rf $(mkcert -CAROOT)/* rm -rf ${CERTS_DIR}/* # create new ca openssl req -new -nodes \\ -x509 \\ -days 3650 \\ -newkey rsa:2048 \\ -keyout \"${CERTS_DIR}\"/ca.key \\ -out \"${CERTS_DIR}\"/ca.crt \\ -config ./ca/ca.cnf # create ca pem from crt and key cat \"${CERTS_DIR}\"/ca.crt \"${CERTS_DIR}\"/ca.key \u003e \"${CERTS_DIR}\"/ca.pem # create ca p12 from existing java trust store docker run --rm -it -v \"${CERTS_DIR}\":/certs \\ eclipse-temurin:17-jdk -- keytool -importkeystore \\ -srckeystore/opt/java/openjdk/lib/security/cacerts \\ -srcstoretype PKCS12 \\ -srcstorepass changeit \\ -destkeystore /certs/ca.p12 \\ -deststoretype PKCS12 \\ -deststorepass \"${STORE_PASS}\" # change files to have proper user permissions sudo chown $(id -u):$(id -g) \"${CERTS_DIR}\"/ca.p12 # add our new ca to newly created store docker run --rm -it -v ${CERTS_DIR}:/certs \\ eclipse-temurin:17-jdk \\ -- keytool -importcert -alias my_ca_cert \\ -file /certs/ca.pem \\ -keystore /certs/ca.p12 \\ -deststorepass \"${STORE_PASS}\" \\ -noprompt # create key and csr for server EKU openssl req -new \\ -newkey rsa:2048 \\ -keyout \"${CERTS_DIR}\"/server.key \\ -out \"${CERTS_DIR}\"/server.csr \\ -config ./ca/server.cnf \\ -nodes # sign the server csr and create cert openssl x509 -req \\ -days 3650 \\ -in \"${CERTS_DIR}\"/server.csr \\ -CA \"${CERTS_DIR}\"/ca.crt \\ -CAkey \"${CERTS_DIR}\"/ca.key \\ -CAcreateserial \\ -out \"${CERTS_DIR}\"/server.crt \\ -extfile ./ca/server.cnf \\ -extensions v3_req # create server pem from crt and key cat \"${CERTS_DIR}\"/server.crt \"${CERTS_DIR}\"/server.key \u003e \"${CERTS_DIR}\"/server.pem # create server p12 keystore openssl pkcs12 -export \\ -in \"${CERTS_DIR}\"/server.crt \\ -inkey \"${CERTS_DIR}\"/server.key \\ -chain \\ -CAfile \"${CERTS_DIR}\"/ca.pem \\ -name server \\ -out \"${CERTS_DIR}\"/server.p12 \\ -password pass:\"${STORE_PASS}\" # change files to have proper user permissions sudo chown $(id -u):$(id -g) \"${CERTS_DIR}\"/server.p12 # import server p12 to store if needed docker run --rm -it -v ${CERTS_DIR}:/certs \\ eclipse-temurin:17-jdk -- keytool \\ -importcert -alias server_cert \\ -file /certs/server.pem \\ -keystore /certs/ca.p12 \\ -deststorepass \"${STORE_PASS}\" \\ -noprompt # create key and csr for client EKU openssl req -new \\ -newkey rsa:2048 \\ -keyout \"${CERTS_DIR}\"/client.key \\ -out \"${CERTS_DIR}\"/client.csr \\ -config ./ca/client.cnf \\ -nodes # sign the client csr and create cert openssl x509 -req \\ -days 3650 \\ -in \"${CERTS_DIR}\"/client.csr \\ -CA \"${CERTS_DIR}\"/ca.crt \\ -CAkey \"${CERTS_DIR}\"/ca.key \\ -CAcreateserial \\ -out \"${CERTS_DIR}\"/client.crt \\ -extfile ./ca/client.cnf \\ -extensions v3_req # create client pem from crt and key cat \"${CERTS_DIR}\"/client.crt \"${CERTS_DIR}\"/client.key \u003e \"${CERTS_DIR}\"/client.pem # create client p12 keystore openssl pkcs12 -export \\ -in \"${CERTS_DIR}\"/client.crt \\ -inkey \"${CERTS_DIR}\"/client.key \\ -chain \\ -CAfile \"${CERTS_DIR}\"/ca.pem \\ -name client \\ -out \"${CERTS_DIR}\"/client.p12 \\ -password pass:\"${STORE_PASS}\" # change files created to have proper user permissions sudo chown $(id -u):$(id -g) \"${CERTS_DIR}\"/client.p12 # import client p12 to store if needed docker run --rm -it -v ${PWD}:/certs \\ eclipse-temurin:17-jdk \\ -- keytool -importcert -alias client_cert \\ -file /certs/client.pem \\ -keystore /certs/ca.p12 \\ -deststorepass \"${STORE_PASS}\" \\ -noprompt # list certs in store to verify everything imported docker run --rm -it -v ${PWD}:/certs \\ eclipse-temurin:17-jdk \\ -- keytool -list -v -keystore /certs/ca.p12 \\ -storepass \"${STORE_PASS}\" # cleanup files we don't need rm -rf \"${CERTS_DIR}\"/client.csr rm -rf \"${CERTS_DIR}\"/server.csr # copy ca files to mkcert folder cp \"${CERTS_DIR}\"/ca.key $(mkcert -CAROOT)/rootCA-key.pem cp \"${CERTS_DIR}\"/ca.crt $(mkcert -CAROOT)/rootCA.pem cp \"${CERTS_DIR}\"/ca.srl $(mkcert -CAROOT)/rootCA.srl # trust the ca for your system mkcert -install # concatenate server cert + ca.cert to use for ingress cat ${CERTS_DIR}/server.crt ${CERTS_DIR}/ca.crt \u003e ${CERTS_DIR}/full.pem } function create_tls_secrets() { kubectl create namespace traefik kubectl create namespace infra kubectl create namespace app # create ingress certificate kubectl -n traefik create secret tls my-root-ca-tls \\ --key ${CERTS_DIR}/server.key \\ --cert ${CERTS_DIR}/server.crt \\ --dry-run=client -o yaml \\ | kubectl apply -f - # create secret for plain certificates in infra + app namespaces kubectl -n infra create secret generic certificates \\ --from-file=ca.crt=${CERTS_DIR}/ca.crt \\ --from-file=server.crt=${CERTS_DIR}/server.crt \\ --from-file=server.key=${CERTS_DIR}/server.key \\ --from-file=client.crt=${CERTS_DIR}/client.crt \\ --from-file=client.key=${CERTS_DIR}/client.key \\ --dry-run=client -o yaml \\ | kubectl apply -f - kubectl -n app create secret generic certificates \\ --from-file=ca.crt=${CERTS_DIR}/ca.crt \\ --from-file=server.crt=${CERTS_DIR}/server.crt \\ --from-file=server.key=${CERTS_DIR}/server.key \\ --from-file=client.crt=${CERTS_DIR}/client.crt \\ --from-file=client.key=${CERTS_DIR}/client.key \\ --dry-run=client -o yaml \\ | kubectl apply -f - # create secret for keystores in infra + app namespaces kubectl -n infra create secret generic keystores \\ --from-file=ca.p12=${CERTS_DIR}/ca.p12\\ --from-file=server.p12=${CERTS_DIR}/server.p12 \\ --from-file=client.p12=${CERTS_DIR}/client.p12 \\ --from-literal=password=\"${STORE_PASS}\" \\ --dry-run=client -o yaml \\ | kubectl apply -f - kubectl -n app create secret generic keystores \\ --from-file=ca.p12=${CERTS_DIR}/ca.p12\\ --from-file=server.p12=${CERTS_DIR}/server.p12 \\ --from-file=client.p12=${CERTS_DIR}/client.p12 \\ --from-literal=password=\"${STORE_PASS}\" \\ --dry-run=client -o yaml \\ | kubectl apply -f - } Now we’ve got 2 secrets per namespace.\nOne contains certificates, the other keystores.\nWe can mount them to our apps as needed to be used for mutual TLS.\ncert-manager would have been nother useful tool here. Food for another adventure.\n",
+  "wordCount" : "1071",
+  "inLanguage": "en",
+  "datePublished": "2025-12-13T00:00:00Z",
+  "dateModified": "2025-12-13T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": {"email":"stelis@systematize.it","name":"stelis"}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://details.systematize.it/details/2025-12-13-certificates-revisited/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tales Of Details",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://details.systematize.it/assets/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://details.systematize.it/" accesskey="h" title="Tales Of Details (Alt + H)">Tales Of Details</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://details.systematize.it/">Home</a>&nbsp;»&nbsp;<a href="https://details.systematize.it/details/">Details</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Certificates, revisited
+    </h1>
+    <div class="post-meta"><span title='2025-12-13 00:00:00 +0000 UTC'>December 13, 2025</span>&nbsp;·&nbsp;<span>
+<a href="mailto:stelis@systematize.it">stelis</a></span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>In the never-ending quest for <a href="../posts/2025-06-13-extreme-env-parity.md">env parity</a>, I ran into another interesting issue.<br>
+<code>mkcert</code> does not deal with client certificates, it only creates server certs.<br>
+What if we want to do mutual TLS and need them?<br>
+Well, buckle up, we&rsquo;ll take <code>openssl</code> for a ride.<br>
+We&rsquo;ll need the three files shown below in a folder named <code>ca</code> and the scripts that follow.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-ini" data-lang="ini"><span style="display:flex;"><span><span style="color:#75715e"># ca/ca.cnf</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[ policy_match ]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">countryName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">match</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">stateOrProvinceName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">match</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">organizationName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">match</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">organizationalUnitName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">optional</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">commonName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">supplied</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">emailAddress</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">optional</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[ req ]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">prompt</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">no</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">distinguished_name</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">dn</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">default_md</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">sha256</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">default_bits</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">4096</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">x509_extensions</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">v3_ca</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[ dn ]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">countryName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">GR</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">organizationName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">MyCompany</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">localityName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">Athens</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">commonName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">mycompany-ca</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[ v3_ca ]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">subjectKeyIdentifier</span><span style="color:#f92672">=</span><span style="color:#e6db74">hash</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">basicConstraints</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">critical,CA:true</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">authorityKeyIdentifier</span><span style="color:#f92672">=</span><span style="color:#e6db74">keyid:always,issuer:always</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">keyUsage</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">critical,keyCertSign,cRLSign</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ca/client.cnf</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[req]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">prompt</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">no</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">distinguished_name</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">dn</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">default_md</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">sha256</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">default_bits</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">4096</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">req_extensions</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">v3_req</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[ dn ]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">countryName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">GR</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">organizationName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">MyCompnay</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">localityName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">Athens</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">commonName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">mycompany-ca</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">commonName</span><span style="color:#f92672">=</span><span style="color:#e6db74">*.random.k8s</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[ v3_ca ]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">subjectKeyIdentifier</span><span style="color:#f92672">=</span><span style="color:#e6db74">hash</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">basicConstraints</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">critical,CA:true</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">authorityKeyIdentifier</span><span style="color:#f92672">=</span><span style="color:#e6db74">keyid:always,issuer:always</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">keyUsage</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">critical,keyCertSign,cRLSign</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[ v3_req ]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">subjectKeyIdentifier</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">hash</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">basicConstraints</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">CA:FALSE</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">nsComment</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;OpenSSL Generated Certificate&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">keyUsage</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">critical, digitalSignature, keyEncipherment</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">extendedKeyUsage</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">clientAuth</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">subjectAltName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">@alt_names</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[ alt_names ]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.1</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">*.random.k8s</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.2</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">random.k8s</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.3</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">localhost</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.4</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">127.0.0.1</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.5</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">myservice</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.6</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">myotherservice</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.7</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">*.infra</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.8</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">*.app</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.9</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">*.somedomain.iwantotouse</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ca/server.cnf</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[req]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">prompt</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">no</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">distinguished_name</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">dn</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">default_md</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">sha256</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">default_bits</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">4096</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">req_extensions</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">v3_req</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[ dn ]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">countryName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">GR</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">organizationName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">mycompany</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">localityName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">Athens</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">commonName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">mycompany-ca</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">commonName</span><span style="color:#f92672">=</span><span style="color:#e6db74">*.random.k8s</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[ v3_ca ]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">subjectKeyIdentifier</span><span style="color:#f92672">=</span><span style="color:#e6db74">hash</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">basicConstraints</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">critical,CA:true</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">authorityKeyIdentifier</span><span style="color:#f92672">=</span><span style="color:#e6db74">keyid:always,issuer:always</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">keyUsage</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">critical,keyCertSign,cRLSign</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[ v3_req ]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">subjectKeyIdentifier</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">hash</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">basicConstraints</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">CA:FALSE</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">nsComment</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;OpenSSL Generated Certificate&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">keyUsage</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">critical, digitalSignature, keyEncipherment</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">extendedKeyUsage</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">serverAuth</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">subjectAltName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">@alt_names</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">[ alt_names ]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.1</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">*.random.k8s</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.2</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">random.k8s</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.3</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">localhost</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.4</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">127.0.0.1</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.5</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">myservice</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.6</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">myotherservice</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.7</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">*.infra</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.8</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">*.app</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">DNS.9</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">*.somedomain.iwantotouse</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> create_certs<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  local CERTS_DIR<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#66d9ef">:-</span><span style="color:#e6db74">&#34;/opt/my_certs&#34;</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>  local STORE_PASS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>STORE_PASS<span style="color:#66d9ef">:-</span>changeit<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># uninstall any existing CAs handled by mkcert</span>
+</span></span><span style="display:flex;"><span>  mkcert -uninstall
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># then delete the CA files</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># and existing client/server certs</span>
+</span></span><span style="display:flex;"><span>  rm -rf <span style="color:#66d9ef">$(</span>mkcert -CAROOT<span style="color:#66d9ef">)</span>/*
+</span></span><span style="display:flex;"><span>  rm -rf <span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/*
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># create new ca</span>
+</span></span><span style="display:flex;"><span>  openssl req -new -nodes <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    -x509 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    -days <span style="color:#ae81ff">3650</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    -newkey rsa:2048 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    -keyout <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    -out <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    -config ./ca/ca.cnf
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># create ca pem from crt and key</span>
+</span></span><span style="display:flex;"><span>  cat <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.crt <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.key &gt; <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.pem
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># create ca p12 from existing java trust store</span>
+</span></span><span style="display:flex;"><span>  docker run --rm -it -v <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>:/certs  <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    eclipse-temurin:17-jdk -- keytool -importkeystore <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   -srckeystore/opt/java/openjdk/lib/security/cacerts <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   -srcstoretype PKCS12 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   -srcstorepass changeit <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   -destkeystore /certs/ca.p12  <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   -deststoretype PKCS12 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   -deststorepass <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>STORE_PASS<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># change files to have proper user permissions</span>
+</span></span><span style="display:flex;"><span>  sudo chown <span style="color:#66d9ef">$(</span>id -u<span style="color:#66d9ef">)</span>:<span style="color:#66d9ef">$(</span>id -g<span style="color:#66d9ef">)</span> <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.p12
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># add our new ca to newly created store</span>
+</span></span><span style="display:flex;"><span>  docker run --rm -it -v <span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>:/certs  <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    eclipse-temurin:17-jdk <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>           -- keytool -importcert -alias my_ca_cert <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>                      -file /certs/ca.pem <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>                      -keystore /certs/ca.p12 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>                      -deststorepass <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>STORE_PASS<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>                      -noprompt
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># create key and csr for server EKU</span>
+</span></span><span style="display:flex;"><span>  openssl req -new <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -newkey rsa:2048 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -keyout <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/server.key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -out <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/server.csr <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -config ./ca/server.cnf <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -nodes
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># sign the server csr and create cert</span>
+</span></span><span style="display:flex;"><span>  openssl x509 -req <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -days <span style="color:#ae81ff">3650</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -in <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/server.csr <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -CA <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -CAkey <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -CAcreateserial <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -out <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/server.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -extfile ./ca/server.cnf <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -extensions v3_req
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># create server pem from crt and key</span>
+</span></span><span style="display:flex;"><span>  cat <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/server.crt <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/server.key &gt; <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/server.pem
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># create server p12 keystore</span>
+</span></span><span style="display:flex;"><span>  openssl pkcs12 -export <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -in <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/server.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -inkey <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/server.key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -chain <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -CAfile <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.pem <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -name server <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -out <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/server.p12 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -password pass:<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>STORE_PASS<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># change files to have proper user permissions</span>
+</span></span><span style="display:flex;"><span>  sudo chown <span style="color:#66d9ef">$(</span>id -u<span style="color:#66d9ef">)</span>:<span style="color:#66d9ef">$(</span>id -g<span style="color:#66d9ef">)</span> <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/server.p12
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># import server p12 to store if needed</span>
+</span></span><span style="display:flex;"><span>  docker run --rm -it -v <span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>:/certs  <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    eclipse-temurin:17-jdk -- keytool <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>         -importcert -alias server_cert <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>         -file /certs/server.pem <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>         -keystore /certs/ca.p12 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>         -deststorepass <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>STORE_PASS<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>         -noprompt
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># create key and csr for client EKU</span>
+</span></span><span style="display:flex;"><span>  openssl req -new <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -newkey rsa:2048 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -keyout <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/client.key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -out <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/client.csr <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -config ./ca/client.cnf <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -nodes
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># sign the client csr and create cert</span>
+</span></span><span style="display:flex;"><span>  openssl x509 -req <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -days <span style="color:#ae81ff">3650</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -in <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/client.csr <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -CA <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -CAkey <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -CAcreateserial <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -out <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/client.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -extfile ./ca/client.cnf <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -extensions v3_req
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># create client pem from crt and key</span>
+</span></span><span style="display:flex;"><span>  cat <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/client.crt <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/client.key &gt; <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/client.pem
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># create client p12 keystore</span>
+</span></span><span style="display:flex;"><span>  openssl pkcs12 -export <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -in <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/client.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -inkey <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/client.key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -chain <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -CAfile <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.pem <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -name client <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -out <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/client.p12 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>      -password pass:<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>STORE_PASS<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># change files created to have proper user permissions</span>
+</span></span><span style="display:flex;"><span>  sudo chown <span style="color:#66d9ef">$(</span>id -u<span style="color:#66d9ef">)</span>:<span style="color:#66d9ef">$(</span>id -g<span style="color:#66d9ef">)</span> <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/client.p12
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># import client p12 to store if needed</span>
+</span></span><span style="display:flex;"><span>  docker run --rm -it -v <span style="color:#e6db74">${</span>PWD<span style="color:#e6db74">}</span>:/certs <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>         eclipse-temurin:17-jdk <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>           -- keytool -importcert -alias client_cert <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>           -file /certs/client.pem <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>           -keystore /certs/ca.p12 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>           -deststorepass <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>STORE_PASS<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>           -noprompt
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># list certs in store to verify everything imported</span>
+</span></span><span style="display:flex;"><span>  docker run --rm -it -v <span style="color:#e6db74">${</span>PWD<span style="color:#e6db74">}</span>:/certs  <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>         eclipse-temurin:17-jdk <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>           -- keytool -list -v -keystore /certs/ca.p12 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>           -storepass <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>STORE_PASS<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># cleanup files we don&#39;t need</span>
+</span></span><span style="display:flex;"><span>  rm -rf <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/client.csr
+</span></span><span style="display:flex;"><span>  rm -rf <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/server.csr
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># copy ca files to mkcert folder</span>
+</span></span><span style="display:flex;"><span>  cp <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.key <span style="color:#66d9ef">$(</span>mkcert -CAROOT<span style="color:#66d9ef">)</span>/rootCA-key.pem
+</span></span><span style="display:flex;"><span>  cp <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.crt <span style="color:#66d9ef">$(</span>mkcert -CAROOT<span style="color:#66d9ef">)</span>/rootCA.pem
+</span></span><span style="display:flex;"><span>  cp <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>/ca.srl <span style="color:#66d9ef">$(</span>mkcert -CAROOT<span style="color:#66d9ef">)</span>/rootCA.srl
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># trust the ca for your system</span>
+</span></span><span style="display:flex;"><span>  mkcert -install
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># concatenate server cert + ca.cert to use for ingress</span>
+</span></span><span style="display:flex;"><span>  cat <span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/server.crt <span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/ca.crt &gt; <span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/full.pem
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> create_tls_secrets<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  kubectl create namespace traefik
+</span></span><span style="display:flex;"><span>  kubectl create namespace infra
+</span></span><span style="display:flex;"><span>  kubectl create namespace app
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># create ingress certificate</span>
+</span></span><span style="display:flex;"><span>  kubectl -n traefik create secret tls my-root-ca-tls <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>          --key <span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/server.key  <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>          --cert <span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/server.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>          --dry-run<span style="color:#f92672">=</span>client -o yaml <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>          | kubectl apply -f -
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># create secret for plain certificates in infra + app namespaces</span>
+</span></span><span style="display:flex;"><span>  kubectl -n infra create secret generic certificates <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>ca.crt<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/ca.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>server.crt<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/server.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>server.key<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/server.key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>client.crt<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/client.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>client.key<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/client.key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --dry-run<span style="color:#f92672">=</span>client -o yaml <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        | kubectl apply -f -
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  kubectl -n app create secret generic certificates <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>ca.crt<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/ca.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>server.crt<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/server.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>server.key<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/server.key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>client.crt<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/client.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>client.key<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/client.key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --dry-run<span style="color:#f92672">=</span>client -o yaml <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        | kubectl apply -f -
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># create secret for keystores in infra + app namespaces</span>
+</span></span><span style="display:flex;"><span>  kubectl -n infra create secret generic keystores <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>ca.p12<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/ca.p12<span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>server.p12<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/server.p12 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>client.p12<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/client.p12 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-literal<span style="color:#f92672">=</span>password<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>STORE_PASS<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --dry-run<span style="color:#f92672">=</span>client -o yaml <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        | kubectl apply -f -
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  kubectl -n app create secret generic keystores <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>ca.p12<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/ca.p12<span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>server.p12<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/server.p12 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-file<span style="color:#f92672">=</span>client.p12<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>CERTS_DIR<span style="color:#e6db74">}</span>/client.p12 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --from-literal<span style="color:#f92672">=</span>password<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>STORE_PASS<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        --dry-run<span style="color:#f92672">=</span>client -o yaml <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>        | kubectl apply -f -
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>Now we&rsquo;ve got 2 secrets per namespace.<br>
+One contains certificates, the other keystores.<br>
+We can mount them to our apps as needed to be used for mutual TLS.</p>
+<blockquote>
+<p>cert-manager would have been nother useful tool here. Food for another adventure.</p>
+</blockquote>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://details.systematize.it/details/2025-12-28-cache-control/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Cache-Control</span>
+  </a>
+  <a class="next" href="https://details.systematize.it/details/2025-12-13-dev-ready-bare-metal-k8s/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Dev Ready Bare Metal k8s</span>
+  </a>
+</nav>
+
+  </footer><script src="https://utteranc.es/client.js"
+        repo="stelispanagiotakis/details"
+        issue-term="pathname"
+        theme="preferred-color-scheme"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://details.systematize.it/">Tales Of Details</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

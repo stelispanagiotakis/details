@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Dev Ready Bare Metal k8s | Tales Of Details</title>
+<meta name="keywords" content="">
+<meta name="description" content="We&rsquo;re building a shared development environment in k8s
+The typical cloud managed k8s services are not available.
+We need ample resources and low-as-possible price for k8s.
+Requirements? We have them
+
+Private access. Given private access to the machine&rsquo;s local IP address, it needs to be reachable and publish services to that interface.
+Public Access. Given a public IP assigned to its second interface, we need to be able to selectively publish services to the internet.
+Data is not important. We care about them as far as they are needed for the services to keep running properly.
+
+Wanna try a Bare Metal server for this?">
+<meta name="author" content="
+stelis">
+<link rel="canonical" href="https://details.systematize.it/details/2025-12-13-dev-ready-bare-metal-k8s/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.da3211e5ef867bf2b75fd5a6515cfed7195c011e8ab735694e203810a827097b.css" integrity="sha256-2jIR5e&#43;Ge/K3X9WmUVz&#43;1xlcAR6KtzVpTiA4EKgnCXs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://details.systematize.it/assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://details.systematize.it/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://details.systematize.it/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://details.systematize.it/apple-touch-icon.png">
+<link rel="mask-icon" href="https://details.systematize.it/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://details.systematize.it/details/2025-12-13-dev-ready-bare-metal-k8s/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://details.systematize.it/details/2025-12-13-dev-ready-bare-metal-k8s/">
+  <meta property="og:site_name" content="Tales Of Details">
+  <meta property="og:title" content="Dev Ready Bare Metal k8s">
+  <meta property="og:description" content="We’re building a shared development environment in k8s
+The typical cloud managed k8s services are not available.
+We need ample resources and low-as-possible price for k8s.
+Requirements? We have them
+Private access. Given private access to the machine’s local IP address, it needs to be reachable and publish services to that interface. Public Access. Given a public IP assigned to its second interface, we need to be able to selectively publish services to the internet. Data is not important. We care about them as far as they are needed for the services to keep running properly. Wanna try a Bare Metal server for this?">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="details">
+    <meta property="article:published_time" content="2025-12-13T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-12-13T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dev Ready Bare Metal k8s">
+<meta name="twitter:description" content="We&rsquo;re building a shared development environment in k8s
+The typical cloud managed k8s services are not available.
+We need ample resources and low-as-possible price for k8s.
+Requirements? We have them
+
+Private access. Given private access to the machine&rsquo;s local IP address, it needs to be reachable and publish services to that interface.
+Public Access. Given a public IP assigned to its second interface, we need to be able to selectively publish services to the internet.
+Data is not important. We care about them as far as they are needed for the services to keep running properly.
+
+Wanna try a Bare Metal server for this?">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Details",
+      "item": "https://details.systematize.it/details/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Dev Ready Bare Metal k8s",
+      "item": "https://details.systematize.it/details/2025-12-13-dev-ready-bare-metal-k8s/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Dev Ready Bare Metal k8s",
+  "name": "Dev Ready Bare Metal k8s",
+  "description": "We\u0026rsquo;re building a shared development environment in k8s\nThe typical cloud managed k8s services are not available.\nWe need ample resources and low-as-possible price for k8s.\nRequirements? We have them\nPrivate access. Given private access to the machine\u0026rsquo;s local IP address, it needs to be reachable and publish services to that interface. Public Access. Given a public IP assigned to its second interface, we need to be able to selectively publish services to the internet. Data is not important. We care about them as far as they are needed for the services to keep running properly. Wanna try a Bare Metal server for this?\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "We’re building a shared development environment in k8s\nThe typical cloud managed k8s services are not available.\nWe need ample resources and low-as-possible price for k8s.\nRequirements? We have them\nPrivate access. Given private access to the machine’s local IP address, it needs to be reachable and publish services to that interface. Public Access. Given a public IP assigned to its second interface, we need to be able to selectively publish services to the internet. Data is not important. We care about them as far as they are needed for the services to keep running properly. Wanna try a Bare Metal server for this?\nOS Talos is a great option if it supports your hardware. For our case it wasn’t suitable as it does not support Soft RAID (see e.g here) so I thought we’d forego the flexibility of upgrades etc for something with some disk fault tolerance.\nUbuntu it is.\nk8s Nowadays there are many projects that will do for an easy k8s installation.\nI went with something already familiar, k3s. I ended up with an install script like\ncurl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=stable \\ sh -s - --node-ip=\"SERVER.PRIVATE.IP.ADDRESS\" \\\n--advertise-address=\"SERVER.PRIVATE.IP.ADDRESS\" \\\n--disable=traefik,metrics-server,servicelb \\\n--default-local-storage-path=/path/to/my/raid/volume\nOk, so we’ve got a kubeconfig we can use to access the cluster from our local terminal.\nStorage If we actually cared about data, we might need network storage and a csi driver to attach it to the cluster ( ceph if feasible, nfs if masochist). Since we can get away with a few good backups that can be stored elsewhere and used to restore functionality, the default storage class of k3s should be ok ( configured to store in the soft-raid backed partition). And also, per case, hostPath should also be an option.\nPublic / Private Ingress That’s where I had the most fun.\nNo automagic LBs spawning every time I christen a k8s service type: LoadBalancer.\nThat would be great for the private Ingresses.\nThe public ones though?\nI couldn’t get k3s to network over one interface and ingress through another.\nThere may be an incantation I’m missing there but it seemed counter-intuitive too, so I abandoned the thought.\nLet’s sort out the private part and get back to the public one.\nPrivate Ingress MetalLB was quite helpful for this.\nCreates an IP Pool (outside the DHCP range) and whenever I created a type: LoadBalancer service it happily reserved an IP from that pool and advertised it.\nSo I installed traefik, got it its own private IP from that pool and were doing fine.\nNow about publicly exposing services?\nPublic Ingress Briefly , I considered using a utility like socat to pipe all traffic from the IP of the private NIC ( or the metalLB one reserved for traefik) to the public IP of the second interface.\nIt worked but apart from being an ugly hack, that would expose all services to the public, like wholesale.\nEven if no DNS pointed to it, a determined outsider could guess a few host header values and enter.\nBut, traefik has another feature I like.\nYou can configure it to bind to specific hostPorts.\nBut that’s not going to work together with the previous setup with MetalLB.\nFine, 2 separate traefik installations then.\nOne binds to ports 80 and 443 of the host machine and exposes all the ingresses it serves to public IP ( you’d need to also set the hostIP to the public one to block it from also using the private one )\nAnother one that gets a private IP from MetalLB and is accessible privately.\nEach installation is configured to serve only Ingresses of a specific ingressClass ( e.g traefik-internal and traefik-external)\nAnd depending on the ingressClass we use, the service is assigned to the proper traefik instance and exposed privately or publicly.\nArgoCD Hey, are we doing ArgoCD too? If so, we’ll bump into another little issue that might aggravate our collective OCD.\nThe traefik-external service will never get a “proper” external IP, so all Ingresses it serves will be always showing as \" In Progress\". We could add annotations to instruct ArgoCD to ignore them but, couldn’t we just fix them?\nYes, we could\nservice: enabled: true type: ClusterIP externalIPs: - \"OUR.PUBLIC.IP.ADDRESS\"` This populates the traefik-external service with our correct public IP and hence sets the correct status for the ingresses\nNow pair that with a couple of external-dns installations to update our internal and external DNS servers and we’re golden :-)\n",
+  "wordCount" : "743",
+  "inLanguage": "en",
+  "datePublished": "2025-12-13T00:00:00Z",
+  "dateModified": "2025-12-13T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": {"email":"stelis@systematize.it","name":"stelis"}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://details.systematize.it/details/2025-12-13-dev-ready-bare-metal-k8s/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tales Of Details",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://details.systematize.it/assets/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://details.systematize.it/" accesskey="h" title="Tales Of Details (Alt + H)">Tales Of Details</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://details.systematize.it/">Home</a>&nbsp;»&nbsp;<a href="https://details.systematize.it/details/">Details</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Dev Ready Bare Metal k8s
+    </h1>
+    <div class="post-meta"><span title='2025-12-13 00:00:00 +0000 UTC'>December 13, 2025</span>&nbsp;·&nbsp;<span>
+<a href="mailto:stelis@systematize.it">stelis</a></span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>We&rsquo;re building a shared development environment in k8s<br>
+The typical cloud managed k8s services are not available.<br>
+We need ample resources and low-as-possible price for k8s.</p>
+<p>Requirements? We have them</p>
+<ul>
+<li>Private access. Given private access to the machine&rsquo;s local IP address, it needs to be reachable and publish services to that interface.</li>
+<li>Public Access. Given a public IP assigned to its second interface, we need to be able to selectively publish services to the internet.</li>
+<li>Data is not important. We care about them as far as they are needed for the services to keep running properly.</li>
+</ul>
+<p>Wanna try a Bare Metal server for this?</p>
+<h2 id="os">OS<a hidden class="anchor" aria-hidden="true" href="#os">#</a></h2>
+<p>Talos is a great option if it supports your hardware. For our case it wasn&rsquo;t suitable as it does not support Soft RAID (see e.g <a href="https://github.com/siderolabs/talos/discussions/8654">here)</a> so I thought we&rsquo;d forego the flexibility of upgrades etc for something with some disk fault tolerance.<br>
+Ubuntu it is.</p>
+<h2 id="k8s">k8s<a hidden class="anchor" aria-hidden="true" href="#k8s">#</a></h2>
+<p>Nowadays there are many projects that will do for an easy k8s installation.<br>
+I went with something already familiar, <code>k3s</code>. I ended up with an install script like</p>
+<p><code>curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=stable \ sh -s - --node-ip=&quot;SERVER.PRIVATE.IP.ADDRESS&quot; \</code><br>
+<code>--advertise-address=&quot;SERVER.PRIVATE.IP.ADDRESS&quot; \</code><br>
+<code>--disable=traefik,metrics-server,servicelb \</code><br>
+<code>--default-local-storage-path=/path/to/my/raid/volume</code></p>
+<p>Ok, so we&rsquo;ve got a kubeconfig we can use to access the cluster from our local terminal.</p>
+<h2 id="storage">Storage<a hidden class="anchor" aria-hidden="true" href="#storage">#</a></h2>
+<p>If we actually cared about data, we might need network storage and a csi driver to attach it to the cluster ( ceph if feasible, nfs if masochist). Since we can get away with a few good backups that can be stored elsewhere and used to restore functionality, the default storage class of k3s should be ok ( configured to store in the soft-raid backed partition). And also, per case, hostPath should also be an option.</p>
+<h2 id="public--private-ingress">Public / Private Ingress<a hidden class="anchor" aria-hidden="true" href="#public--private-ingress">#</a></h2>
+<p>That&rsquo;s where I had the most fun.<br>
+No automagic LBs spawning every time I christen a k8s service <code>type: LoadBalancer</code>.<br>
+That would be great for the private Ingresses.<br>
+The public ones though?<br>
+I couldn&rsquo;t get k3s to network over one interface and ingress through another.<br>
+There may be an incantation I&rsquo;m missing there but it seemed counter-intuitive too, so I abandoned the thought.<br>
+Let&rsquo;s sort out the private part and get back to the public one.</p>
+<h3 id="private-ingress">Private Ingress<a hidden class="anchor" aria-hidden="true" href="#private-ingress">#</a></h3>
+<p>MetalLB was quite helpful for this.<br>
+Creates an IP Pool (outside the DHCP range) and whenever I created a <code>type: LoadBalancer</code> service it happily reserved an IP from that pool and advertised it.<br>
+So I installed traefik, got it its own private IP from that pool and were doing fine.<br>
+Now about publicly exposing services?</p>
+<h3 id="public-ingress">Public Ingress<a hidden class="anchor" aria-hidden="true" href="#public-ingress">#</a></h3>
+<p>Briefly , I considered using a utility like <code>socat</code> to pipe all traffic from the IP of the private NIC ( or the metalLB one reserved for traefik) to the public IP of the second interface.<br>
+It worked but apart from being an ugly hack, that would expose all services to the public, like wholesale.<br>
+Even if no DNS pointed to it, a determined outsider could guess a few host header values and enter.<br>
+But, traefik has another feature I like.<br>
+You can configure it to bind to specific <a href="https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml#L826">hostPorts</a>.<br>
+But that&rsquo;s not going to work together with the previous setup with MetalLB.<br>
+Fine, <strong>2 separate traefik installations</strong> then.<br>
+One binds to ports 80 and 443 of the host machine and exposes all the ingresses it serves to public IP ( you&rsquo;d need to also set the <code>hostIP</code> to the public one to block it from also using the private one )<br>
+Another one that gets a private IP from MetalLB and is accessible privately.<br>
+Each installation is configured to serve only Ingresses of a specific ingressClass ( e.g <code>traefik-internal</code> and <code>traefik-external</code>)<br>
+And depending on the ingressClass we use, the service is assigned to the proper traefik instance and exposed privately or publicly.</p>
+<h3 id="argocd">ArgoCD<a hidden class="anchor" aria-hidden="true" href="#argocd">#</a></h3>
+<p>Hey, are we doing ArgoCD too? If so, we&rsquo;ll bump into another little issue that might aggravate our collective OCD.<br>
+The <code>traefik-external</code> service will never get a &ldquo;proper&rdquo; external IP, so all Ingresses it serves will be always showing as &quot; In Progress&quot;. We could add annotations to instruct ArgoCD to ignore them but, couldn&rsquo;t we just fix them?<br>
+Yes, <a href="https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml#L1008-L1033">we could</a></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">service</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">ClusterIP</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">externalIPs</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#e6db74">&#34;OUR.PUBLIC.IP.ADDRESS&#34;</span><span style="color:#ae81ff">`</span>
+</span></span></code></pre></div><p>This populates the <code>traefik-external</code> service with our correct public IP and hence sets the correct status for the ingresses</p>
+<p>Now pair that with a couple of external-dns installations to update our internal and external DNS servers and we&rsquo;re golden :-)</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://details.systematize.it/details/2025-12-13-certificates-revisited/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Certificates, revisited</span>
+  </a>
+  <a class="next" href="https://details.systematize.it/details/2025-12-13-if-my-java-memory-serves-me-well/">
+    <span class="title">Next »</span>
+    <br>
+    <span>If my java memory serves me well...</span>
+  </a>
+</nav>
+
+  </footer><script src="https://utteranc.es/client.js"
+        repo="stelispanagiotakis/details"
+        issue-term="pathname"
+        theme="preferred-color-scheme"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://details.systematize.it/">Tales Of Details</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

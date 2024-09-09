@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Cache-Control | Tales Of Details</title>
+<meta name="keywords" content="">
+<meta name="description" content="There are two main problems in programming:
+
+Invalidating Cache
+Naming things
+Off-by-one errors
+
+Let&rsquo;s do cache in the web today :-)
+Suppose you have a static frontend that you need to serve.
+And you care about having globally available with low latency.
+That&rsquo;s the prime use case for a CDN, right?
+So you deploy a CDN ( Cloudflare, Cloudfront etc).
+And you point it to a source ( an S3 bucket with your static files or a publicly accessible web-server serving your files).">
+<meta name="author" content="
+stelis">
+<link rel="canonical" href="https://details.systematize.it/details/2025-12-28-cache-control/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.da3211e5ef867bf2b75fd5a6515cfed7195c011e8ab735694e203810a827097b.css" integrity="sha256-2jIR5e&#43;Ge/K3X9WmUVz&#43;1xlcAR6KtzVpTiA4EKgnCXs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://details.systematize.it/assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://details.systematize.it/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://details.systematize.it/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://details.systematize.it/apple-touch-icon.png">
+<link rel="mask-icon" href="https://details.systematize.it/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://details.systematize.it/details/2025-12-28-cache-control/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://details.systematize.it/details/2025-12-28-cache-control/">
+  <meta property="og:site_name" content="Tales Of Details">
+  <meta property="og:title" content="Cache-Control">
+  <meta property="og:description" content="There are two main problems in programming:
+Invalidating Cache Naming things Off-by-one errors Let’s do cache in the web today :-)
+Suppose you have a static frontend that you need to serve.
+And you care about having globally available with low latency.
+That’s the prime use case for a CDN, right?
+So you deploy a CDN ( Cloudflare, Cloudfront etc).
+And you point it to a source ( an S3 bucket with your static files or a publicly accessible web-server serving your files).">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="details">
+    <meta property="article:published_time" content="2025-12-28T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-12-28T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Cache-Control">
+<meta name="twitter:description" content="There are two main problems in programming:
+
+Invalidating Cache
+Naming things
+Off-by-one errors
+
+Let&rsquo;s do cache in the web today :-)
+Suppose you have a static frontend that you need to serve.
+And you care about having globally available with low latency.
+That&rsquo;s the prime use case for a CDN, right?
+So you deploy a CDN ( Cloudflare, Cloudfront etc).
+And you point it to a source ( an S3 bucket with your static files or a publicly accessible web-server serving your files).">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Details",
+      "item": "https://details.systematize.it/details/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Cache-Control",
+      "item": "https://details.systematize.it/details/2025-12-28-cache-control/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Cache-Control",
+  "name": "Cache-Control",
+  "description": "There are two main problems in programming:\nInvalidating Cache Naming things Off-by-one errors Let\u0026rsquo;s do cache in the web today :-)\nSuppose you have a static frontend that you need to serve.\nAnd you care about having globally available with low latency.\nThat\u0026rsquo;s the prime use case for a CDN, right?\nSo you deploy a CDN ( Cloudflare, Cloudfront etc).\nAnd you point it to a source ( an S3 bucket with your static files or a publicly accessible web-server serving your files).\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "There are two main problems in programming:\nInvalidating Cache Naming things Off-by-one errors Let’s do cache in the web today :-)\nSuppose you have a static frontend that you need to serve.\nAnd you care about having globally available with low latency.\nThat’s the prime use case for a CDN, right?\nSo you deploy a CDN ( Cloudflare, Cloudfront etc).\nAnd you point it to a source ( an S3 bucket with your static files or a publicly accessible web-server serving your files).\nAnd then you release a new version.\nHow does the CDN know it needs to go back to your source to get the new files? And since the app is static, it gets downloaded to your users’ browser, right?\nHow does the browser know to ask the CDN for the latest files?\nYou use headers.\nCache-Control: no-cache ( although not too intuitively named) instructs the browser and/or the CDN that it CAN cache the files but before using them, it must re-validate with its source. ( The value that disables caching and requires always talking to the source is no-store). So we have the mechanism to ask for new files.\nBut which files are new / have changed?\nThe ETag header is in play here. Your source needs to create a hash of each file it serves ( usually the hash contains a combination of size and last changed timestamp. It varies between implementations but it ultimately does the same thing). That’s how the second check happens. If the file has a different ETag, it gets re-downloaded. If not the cached version is served.\nWe’re good on the CDN part, but there’s an edge case for the browser.\nWhat if the files are updated while you’re using the page? There’s a trick that uses the service workers to detect a new version and invalidate the cache / request the new version.\nBut it’s framework/implementation specific and not my area of expertise, so I’ll lazily leave the googling to the reader.\n",
+  "wordCount" : "333",
+  "inLanguage": "en",
+  "datePublished": "2025-12-28T00:00:00Z",
+  "dateModified": "2025-12-28T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": {"email":"stelis@systematize.it","name":"stelis"}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://details.systematize.it/details/2025-12-28-cache-control/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tales Of Details",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://details.systematize.it/assets/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://details.systematize.it/" accesskey="h" title="Tales Of Details (Alt + H)">Tales Of Details</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://details.systematize.it/">Home</a>&nbsp;»&nbsp;<a href="https://details.systematize.it/details/">Details</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Cache-Control
+    </h1>
+    <div class="post-meta"><span title='2025-12-28 00:00:00 +0000 UTC'>December 28, 2025</span>&nbsp;·&nbsp;<span>
+<a href="mailto:stelis@systematize.it">stelis</a></span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>There are two main problems in programming:</p>
+<ul>
+<li>Invalidating Cache</li>
+<li>Naming things</li>
+<li>Off-by-one errors</li>
+</ul>
+<p>Let&rsquo;s do cache in the web today :-)</p>
+<p>Suppose you have a static frontend that you need to serve.<br>
+And you care about having globally available with low latency.<br>
+That&rsquo;s the prime use case for a CDN, right?<br>
+So you deploy a CDN ( Cloudflare, Cloudfront etc).<br>
+And you point it to a source ( an S3 bucket with your static files or a publicly accessible web-server serving your files).</p>
+<p>And then you <strong>release a new version</strong>.<br>
+How does the CDN know it needs to go back to your source to get the new files?
+And since the app is static, it gets downloaded to your users&rsquo; browser, right?<br>
+How does the browser know to ask the CDN for the latest files?</p>
+<p>You use headers.<br>
+<code>Cache-Control: no-cache</code> ( although not too intuitively named) instructs the browser and/or the CDN that it CAN cache the files but before using them, it must re-validate with its source. ( The value that disables caching and requires always talking to the source is <code>no-store</code>). So we have the mechanism to ask for new files.<br>
+But which files are new / have changed?<br>
+The <code>ETag</code> header is in play here. Your source needs to create a hash of each file it serves ( usually the hash contains a combination of size and last changed timestamp. It varies between implementations but it ultimately does the same thing). That&rsquo;s how the second check happens. If the file has a different ETag, it gets re-downloaded. If not the cached version is served.</p>
+<p>We&rsquo;re good on the CDN part, but there&rsquo;s an edge case for the browser.<br>
+What if the files are updated <strong>while</strong> you&rsquo;re using the page?
+There&rsquo;s a trick that uses the service workers to detect a new version and invalidate the cache / request the new version.<br>
+But it&rsquo;s framework/implementation specific and not my area of expertise, so I&rsquo;ll lazily leave the googling to the reader.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://details.systematize.it/details/2026-01-20-intuition-is-great-and-dangerous/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Intuition is great... and dangerous</span>
+  </a>
+  <a class="next" href="https://details.systematize.it/details/2025-12-13-certificates-revisited/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Certificates, revisited</span>
+  </a>
+</nav>
+
+  </footer><script src="https://utteranc.es/client.js"
+        repo="stelispanagiotakis/details"
+        issue-term="pathname"
+        theme="preferred-color-scheme"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://details.systematize.it/">Tales Of Details</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

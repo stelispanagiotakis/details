@@ -1,0 +1,29 @@
+baseURL: https://details.systematize.it
+languageCode: en-us
+title: "Tales Of Details"
+theme: ["papermod"]
+publishDir: "docs"
+params:
+  comments: true
+  assets:
+    favicon: /assets/favicon.ico
+  defaultTheme: auto
+  ShowBreadCrumbs: true
+  ShowPostNavLinks: true
+  UseHugoToc: true
+  hideSummary: false
+  showtoc: false
+  tocopen: false
+  hidemeta: false
+  author:
+    name: "stelis"
+    email: "stelis@systematize.it"
+
+  homeInfoParams:
+    Title: "Tales Of Details"
+    Content: >- 
+          Hi! I'm Stelis!  
+          
+          Here I collect details I encounter that seem worth putting into a tale.  
+
+          If you're interested in tech, software, ways of working and a bit of nagging, step right in :-)

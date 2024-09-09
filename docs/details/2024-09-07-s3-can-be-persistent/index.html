@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>S3 can be persistent | Tales Of Details</title>
+<meta name="keywords" content="">
+<meta name="description" content="I&rsquo;ve always hated adding persistence in k8s workloads.
+There are valid reasons to avoid it, right?
+Adding a PV means people can store stuff there that they expect to find, regardless of where the app is deployed/redeployed (which could be in another region/zone/cluster/node etc where the original pv is not present)
+Thus adding another step in the deployment process that comes usually as an afterthought and may be easily overlooked and poorly documented.">
+<meta name="author" content="
+stelis">
+<link rel="canonical" href="https://details.systematize.it/details/2024-09-07-s3-can-be-persistent/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.da3211e5ef867bf2b75fd5a6515cfed7195c011e8ab735694e203810a827097b.css" integrity="sha256-2jIR5e&#43;Ge/K3X9WmUVz&#43;1xlcAR6KtzVpTiA4EKgnCXs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://details.systematize.it/assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://details.systematize.it/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://details.systematize.it/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://details.systematize.it/apple-touch-icon.png">
+<link rel="mask-icon" href="https://details.systematize.it/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://details.systematize.it/details/2024-09-07-s3-can-be-persistent/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://details.systematize.it/details/2024-09-07-s3-can-be-persistent/">
+  <meta property="og:site_name" content="Tales Of Details">
+  <meta property="og:title" content="S3 can be persistent">
+  <meta property="og:description" content="I’ve always hated adding persistence in k8s workloads.
+There are valid reasons to avoid it, right?
+Adding a PV means people can store stuff there that they expect to find, regardless of where the app is deployed/redeployed (which could be in another region/zone/cluster/node etc where the original pv is not present)
+Thus adding another step in the deployment process that comes usually as an afterthought and may be easily overlooked and poorly documented.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="details">
+    <meta property="article:published_time" content="2024-09-07T00:00:00+00:00">
+    <meta property="article:modified_time" content="2024-09-07T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="S3 can be persistent">
+<meta name="twitter:description" content="I&rsquo;ve always hated adding persistence in k8s workloads.
+There are valid reasons to avoid it, right?
+Adding a PV means people can store stuff there that they expect to find, regardless of where the app is deployed/redeployed (which could be in another region/zone/cluster/node etc where the original pv is not present)
+Thus adding another step in the deployment process that comes usually as an afterthought and may be easily overlooked and poorly documented.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Details",
+      "item": "https://details.systematize.it/details/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "S3 can be persistent",
+      "item": "https://details.systematize.it/details/2024-09-07-s3-can-be-persistent/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "S3 can be persistent",
+  "name": "S3 can be persistent",
+  "description": "I\u0026rsquo;ve always hated adding persistence in k8s workloads.\nThere are valid reasons to avoid it, right?\nAdding a PV means people can store stuff there that they expect to find, regardless of where the app is deployed/redeployed (which could be in another region/zone/cluster/node etc where the original pv is not present)\nThus adding another step in the deployment process that comes usually as an afterthought and may be easily overlooked and poorly documented.\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "I’ve always hated adding persistence in k8s workloads.\nThere are valid reasons to avoid it, right?\nAdding a PV means people can store stuff there that they expect to find, regardless of where the app is deployed/redeployed (which could be in another region/zone/cluster/node etc where the original pv is not present)\nThus adding another step in the deployment process that comes usually as an afterthought and may be easily overlooked and poorly documented.\nBut still, every once in a while you have to do it.\nOne way I’ve found that is somewhat acceptable to the above intricacies uses S3.\nAWS recently announced S3 mountpoint.\nYou can use it to easily mount an S3 bucket to a directory in your system or container.\nBut to add this to a docker image you’d need to install the binary, set it up etc.\nWhich means editing the dockerfile and the init script.\nIf it’s your app and you’re fine with that, go right ahead.\nIf not though, you might like to use a sidecar.\nThe sidecar would have\na docker image with mount-s3 installed and proper permissions to access the S3 bucket you want to use (using IRSA with the serviceAccount of the deployment probably) a volume of type emptyDir mounted at some directory in the container with a mountPropagation of Bidirectional an init script to mount the S3 bucket to the directory of the emptyDir volume And the main container would\nmount the same volume with a mountPropagation of HostToContainer. be able to store files in that directory and have everything there written to the S3 bucket, without the main container ever being altered. Enough talk, show me the code\n#dockerfile FROM ubuntu:22.04 RUN apt-get update \u0026\u0026 apt-get install -y wget RUN wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb \u0026\u0026 apt install -y ./mount-s3.deb \u0026\u0026 rm mount-s3.deb WORKDIR /app COPY mount.sh . ENTRYPOINT [“bash”,”-c”,”/app/mount.sh”] #mount.sh mkdir -p \"/${BUCKET_TO_MOUNT}\" mount-s3 \"${BUCKET_TO_MOUNT}\" \"/${BUCKET_TO_MOUNT}\" sleep infinity # snippet from deployment spec: serviceAccountName: sa-that-has-access-to-your-bucket containers: - name: s3mounter securityContext: privileged: true capabilities: add: - SYS_ADMIN env: - name: BUCKET_TO_MOUNT value: your-bucket-name volumeMounts: - name: s3bucket mountPath: /mnt/buckets mountPropagation: Bidirectional - name: s3user image: ubuntu command: - \"/usr/bin/sleep\" - \"infinity\" volumeMounts: - name: s3bucket mountPath: /mnt/buckets mountPropagation: HostToContainer volumes: - name: s3bucket emptyDir: {} Is this fit for every purpose? Likely not. Is it safe? Well, any privileged container is inherently not safe. Read the warning in the MountPropagation article above. Are there better ways? Of course. There are actually even better ways to do what I described above. See here. But this approach too has its merits and seemed worthy of being documented.\n",
+  "wordCount" : "432",
+  "inLanguage": "en",
+  "datePublished": "2024-09-07T00:00:00Z",
+  "dateModified": "2024-09-07T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": {"email":"stelis@systematize.it","name":"stelis"}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://details.systematize.it/details/2024-09-07-s3-can-be-persistent/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tales Of Details",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://details.systematize.it/assets/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://details.systematize.it/" accesskey="h" title="Tales Of Details (Alt + H)">Tales Of Details</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://details.systematize.it/">Home</a>&nbsp;»&nbsp;<a href="https://details.systematize.it/details/">Details</a></div>
+    <h1 class="post-title entry-hint-parent">
+      S3 can be persistent
+    </h1>
+    <div class="post-meta"><span title='2024-09-07 00:00:00 +0000 UTC'>September 7, 2024</span>&nbsp;·&nbsp;<span>
+<a href="mailto:stelis@systematize.it">stelis</a></span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>I&rsquo;ve always hated adding persistence in k8s workloads.<br>
+There are valid reasons to avoid it, right?<br>
+Adding a PV means people can store stuff there that they expect to find, regardless of where the app is deployed/redeployed (which could be in another region/zone/cluster/node etc where the original pv is not present)<br>
+Thus adding another step in the deployment process that comes usually as an afterthought and may be easily overlooked and poorly documented.</p>
+<p>But still, every once in a while you have to do it.<br>
+One way I&rsquo;ve found that is somewhat acceptable to the above intricacies uses S3.</p>
+<p>AWS recently announced <a href="https://github.com/awslabs/mountpoint-s3">S3 mountpoint</a>.<br>
+You can use it to easily mount an S3 bucket to a directory in your system or container.<br>
+But to add this to a docker image you&rsquo;d need to install the binary, set it up etc.<br>
+Which means editing the dockerfile and the init script.<br>
+If it&rsquo;s your app and you&rsquo;re fine with that, go right ahead.<br>
+If not though, you might like to use a sidecar.</p>
+<p>The sidecar would have</p>
+<ul>
+<li>a docker image with <code>mount-s3</code> installed and proper permissions to access the S3 bucket you want to use (using IRSA with the serviceAccount of the deployment probably)</li>
+<li>a volume of type <code>emptyDir</code> mounted at some directory in the container with a <a href="https://kubernetes.io/docs/concepts/storage/volumes/#mount-propagation">mountPropagation</a> of Bidirectional</li>
+<li>an init script to mount the S3 bucket to the directory of the <code>emptyDir</code> volume</li>
+</ul>
+<p>And the main container would</p>
+<ul>
+<li>mount the same volume with a <code>mountPropagation</code> of <code>HostToContainer</code>.</li>
+<li>be able to store files in that directory and have everything there written to the S3 bucket, without the main container ever being altered.</li>
+</ul>
+<p>Enough talk, show me the code</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-docker" data-lang="docker"><span style="display:flex;"><span><span style="color:#75715e">#dockerfile</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> <span style="color:#e6db74">ubuntu:22.04</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">RUN</span> apt-get update <span style="color:#f92672">&amp;&amp;</span> apt-get install -y wget<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">RUN</span> wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span>         <span style="color:#f92672">&amp;&amp;</span> apt install -y ./mount-s3.deb<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span>         <span style="color:#f92672">&amp;&amp;</span> rm mount-s3.deb<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">WORKDIR</span> <span style="color:#e6db74">/app</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">COPY</span> mount.sh .<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">ENTRYPOINT</span> [<span style="color:#960050;background-color:#1e0010">“bash”</span>,<span style="color:#960050;background-color:#1e0010">”-c”</span>,<span style="color:#960050;background-color:#1e0010">”/app/mount.sh”</span>]<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e">#mount.sh</span>
+</span></span><span style="display:flex;"><span>mkdir -p <span style="color:#e6db74">&#34;/</span><span style="color:#e6db74">${</span>BUCKET_TO_MOUNT<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>mount-s3 <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>BUCKET_TO_MOUNT<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#e6db74">&#34;/</span><span style="color:#e6db74">${</span>BUCKET_TO_MOUNT<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>sleep infinity
+</span></span></code></pre></div><pre tabindex="0"><code class="language-kubernetes" data-lang="kubernetes"># snippet from deployment
+spec:
+      serviceAccountName: sa-that-has-access-to-your-bucket
+      containers:
+        - name: s3mounter
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - SYS_ADMIN
+          env:
+            - name: BUCKET_TO_MOUNT
+              value: your-bucket-name
+          volumeMounts:
+            - name: s3bucket
+              mountPath: /mnt/buckets
+              mountPropagation: Bidirectional
+        - name: s3user
+          image: ubuntu
+          command:
+            - &#34;/usr/bin/sleep&#34;
+            - &#34;infinity&#34;
+          volumeMounts:
+            - name: s3bucket
+              mountPath: /mnt/buckets
+              mountPropagation: HostToContainer
+      volumes:
+        - name: s3bucket
+          emptyDir: {}
+</code></pre><ul>
+<li>Is this fit for every purpose? Likely not.</li>
+<li>Is it safe? Well, any privileged container is inherently not safe. Read the warning in the MountPropagation article above.</li>
+<li>Are there better ways? Of course. There are actually even better ways to do what I described above. See <a href="https://github.com/awslabs/mountpoint-s3-csi-driver">here</a>.</li>
+</ul>
+<p>But this approach too has its merits and seemed worthy of being documented.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://details.systematize.it/details/2024-09-08-why-did-ancient-greeks-not-have-probability-theory/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Why did Ancient Greeks not have Probability Theory?</span>
+  </a>
+  <a class="next" href="https://details.systematize.it/details/2024-08-27-diy-internet-connectivity-notification/">
+    <span class="title">Next »</span>
+    <br>
+    <span>DIY internet connectivity notification</span>
+  </a>
+</nav>
+
+  </footer><script src="https://utteranc.es/client.js"
+        repo="stelispanagiotakis/details"
+        issue-term="pathname"
+        theme="preferred-color-scheme"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://details.systematize.it/">Tales Of Details</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

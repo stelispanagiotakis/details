@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>ConfigMap Confusion | Tales Of Details</title>
+<meta name="keywords" content="">
+<meta name="description" content="This has happened to me more than a few times&hellip;
+We&rsquo;re mounting a ConfigMap to our container and using it to configure some aspect of the app inside it.
+Then the ConfigMap changes.
+But the app is unaware and does not react/reconfigure itself. Which component is at fault here and how can we fix it?
+Until this bit me, I was under the impression that Configmaps mounted in containers do NOT auto-update their contents in the container.
+At least not without restarting the container itself.
+There are even projects that undertake parts of this responsibility.
+Like Reloader or SpringBoot Config Watcher.">
+<meta name="author" content="
+stelis">
+<link rel="canonical" href="https://details.systematize.it/details/2024-09-16-configmap-confusion/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.da3211e5ef867bf2b75fd5a6515cfed7195c011e8ab735694e203810a827097b.css" integrity="sha256-2jIR5e&#43;Ge/K3X9WmUVz&#43;1xlcAR6KtzVpTiA4EKgnCXs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://details.systematize.it/assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://details.systematize.it/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://details.systematize.it/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://details.systematize.it/apple-touch-icon.png">
+<link rel="mask-icon" href="https://details.systematize.it/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://details.systematize.it/details/2024-09-16-configmap-confusion/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://details.systematize.it/details/2024-09-16-configmap-confusion/">
+  <meta property="og:site_name" content="Tales Of Details">
+  <meta property="og:title" content="ConfigMap Confusion">
+  <meta property="og:description" content="This has happened to me more than a few times…
+We’re mounting a ConfigMap to our container and using it to configure some aspect of the app inside it.
+Then the ConfigMap changes.
+But the app is unaware and does not react/reconfigure itself. Which component is at fault here and how can we fix it?
+Until this bit me, I was under the impression that Configmaps mounted in containers do NOT auto-update their contents in the container.
+At least not without restarting the container itself.
+There are even projects that undertake parts of this responsibility.
+Like Reloader or SpringBoot Config Watcher.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="details">
+    <meta property="article:published_time" content="2024-09-16T00:00:00+00:00">
+    <meta property="article:modified_time" content="2024-09-16T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ConfigMap Confusion">
+<meta name="twitter:description" content="This has happened to me more than a few times&hellip;
+We&rsquo;re mounting a ConfigMap to our container and using it to configure some aspect of the app inside it.
+Then the ConfigMap changes.
+But the app is unaware and does not react/reconfigure itself. Which component is at fault here and how can we fix it?
+Until this bit me, I was under the impression that Configmaps mounted in containers do NOT auto-update their contents in the container.
+At least not without restarting the container itself.
+There are even projects that undertake parts of this responsibility.
+Like Reloader or SpringBoot Config Watcher.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Details",
+      "item": "https://details.systematize.it/details/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "ConfigMap Confusion",
+      "item": "https://details.systematize.it/details/2024-09-16-configmap-confusion/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "ConfigMap Confusion",
+  "name": "ConfigMap Confusion",
+  "description": "This has happened to me more than a few times\u0026hellip;\nWe\u0026rsquo;re mounting a ConfigMap to our container and using it to configure some aspect of the app inside it.\nThen the ConfigMap changes.\nBut the app is unaware and does not react/reconfigure itself. Which component is at fault here and how can we fix it?\nUntil this bit me, I was under the impression that Configmaps mounted in containers do NOT auto-update their contents in the container.\nAt least not without restarting the container itself.\nThere are even projects that undertake parts of this responsibility.\nLike Reloader or SpringBoot Config Watcher.\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "This has happened to me more than a few times…\nWe’re mounting a ConfigMap to our container and using it to configure some aspect of the app inside it.\nThen the ConfigMap changes.\nBut the app is unaware and does not react/reconfigure itself. Which component is at fault here and how can we fix it?\nUntil this bit me, I was under the impression that Configmaps mounted in containers do NOT auto-update their contents in the container.\nAt least not without restarting the container itself.\nThere are even projects that undertake parts of this responsibility.\nLike Reloader or SpringBoot Config Watcher.\nWell, I was wrong. As Kubernetes docs state,\nif you’ve created env vars from a ConfigMap, you cannot expect them to auto-update when the ConfigMap is changed. But if you’ve mounted the ConfigMap as a volume, the contents do auto-update. Unless you’ve mounted it as a subPath. Then it won’t auto-update either. Confused yet? Let’s dive a bit deeper then :-P\nIt kind of makes sense that env vars created from a ConfigMap will not auto-update. They are created along with the deployment and never re-evaluated. So it’ll take a rollout restart to get them refreshed. What about subPath, though? Well, as stated in this issue, symlinks are involved. How? Well, as we found out:\nyou mount a configmap that would create a file, e.g app_params.yml as a volume to a path in the container, e.g /mnt/myconfig in that path a subfolder is created, named ..data and the contents of your ConfigMap are placed in there then a symlink is created from /mnt/myconfig/..data/file_with_content_from_cm to /mnt/myconfig/app_params.yml. So your app reads from the symlink.\nWhen the Configmap is updated, the file contents in ..data are updated too and transparently to the app, so does the symlink.\nSo your app does have access to the updated file.\nBut when you use a subPath, you’re not mounting a folder, but a specific file.\nSo the ..data + symlink mechanism breaks and the contents of the file are not updated.\nThis mechanism is NOT outlined anywhere that I’ve seen in Kubernetes docs. Only in scattered references in StackOverflow (found this and this ). And here’s a search for ..data in kubernetes’ source. So it seems like it’s here to stay but verify, then trust.\nCool, so we’re good on the ConfigMap part. Does the app know, though? Likely not.\nBecause, much like the env vars from ConfigMap, many apps are configured to look for and use config sources at startup only.\nIs there a way to force them to re-configure? Preferably without restarting, right?\nAs always, it depends on your language and framework of choice.\nIf using Java/SpringBoot, you can enable the /refresh endpoint in your actuator.\nWhen you reach that endpoint, it’ll force any classes you’ve annotated with @RefreshScope to re-evaluate and your app will get the fresh config.\nHow will you know that a ConfigMap was updated in order to hit /refresh/?\nThat’s what SpringBoot ConfigWatcher does.\nInteresting tidbit: when annotating with @RefreshScope Spring creates a bean and a proxy.\nIt uses the proxy so it’s free to replace the bean when a change happens. So… same thing Kubernetes does but on the app side!\nBut what if (am I tiring you already with the whatifs?) you don’t want another new deployment just for watching ConfigMaps?\nCouldn’t we get the event of a ConfigMap change within the pod and react there?\nWhat about using Java Nio2 WatchService to watch for filesystem events and then call ContextRefresher’s refresh() that does the same thing as the /refresh endpoint internally.\nThat’ll work, but beware. You cannot expect to catch changes to the actual file (/mnt/myconfig/app_params.yml from above).\nBecause of the mechanism outlined, there won’t be any.\nYou can either\nwatch the whole mounted folder. You’d catch a few more events and react needlessly, but you’d definitely get your result. watch the ..data subfolder. You’d be more precise but also risk a bit with the tight coupling with an undocumented mechanism. If you go the second route, you may want to restrict the events you act on (multiple pointless refreshes can’t possibly be a good thing, right?). So you might want to watch only for ENTRY_DELETE events of files in ..data with a specific pattern.\nTry this one\n^\\\\.{2}\\\\d{4}_\\\\d{2}_\\\\d{2}_\\\\d{2}_\\\\d{2}_\\\\d{2}\\\\.\\\\d+$ The java specific part was donated by the friend who implemented it. I felt it needed to be here for completeness’ sake.\nI dislike articles that go far enough to boast, then leave you hanging.\nHere is an implementation in Go for hot-reloading ConfigMaps.\nAnd here is the frequency and relevant setting Kubernetes uses to start serving an updated configmap\n",
+  "wordCount" : "773",
+  "inLanguage": "en",
+  "datePublished": "2024-09-16T00:00:00Z",
+  "dateModified": "2024-09-16T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": {"email":"stelis@systematize.it","name":"stelis"}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://details.systematize.it/details/2024-09-16-configmap-confusion/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tales Of Details",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://details.systematize.it/assets/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://details.systematize.it/" accesskey="h" title="Tales Of Details (Alt + H)">Tales Of Details</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://details.systematize.it/">Home</a>&nbsp;»&nbsp;<a href="https://details.systematize.it/details/">Details</a></div>
+    <h1 class="post-title entry-hint-parent">
+      ConfigMap Confusion
+    </h1>
+    <div class="post-meta"><span title='2024-09-16 00:00:00 +0000 UTC'>September 16, 2024</span>&nbsp;·&nbsp;<span>
+<a href="mailto:stelis@systematize.it">stelis</a></span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>This has happened to me more than a few times&hellip;</p>
+<p>We&rsquo;re mounting a ConfigMap to our container and using it to configure some aspect of the app inside it.<br>
+Then the ConfigMap changes.<br>
+But the app is unaware and does not react/reconfigure itself. Which component is at fault here and how can we fix it?</p>
+<p>Until this bit me, I was under the impression that Configmaps mounted in containers do NOT auto-update their contents in the container.<br>
+At least not without restarting the container itself.<br>
+There are even projects that undertake parts of this responsibility.<br>
+Like <a href="https://github.com/stakater/Reloader" title="Reloader">Reloader</a> or <a href="https://docs.spring.io/spring-cloud-kubernetes/reference/spring-cloud-kubernetes-configuration-watcher.html" title="SpringBoot Config Watcher">SpringBoot Config Watcher</a>.</p>
+<p>Well, I was wrong. As <a href="https://kubernetes.io/docs/tutorials/configuration/updating-configuration-via-a-configmap/" title="Kubernetes docs">Kubernetes docs</a> state,</p>
+<ul>
+<li>if you&rsquo;ve created env vars from a ConfigMap, you <strong>cannot expect them to auto-update</strong> when the ConfigMap is changed.</li>
+<li>But if you&rsquo;ve mounted the ConfigMap as a volume, <strong>the contents do auto-update</strong>.</li>
+<li><strong>Unless</strong> you&rsquo;ve mounted it as a <a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#add-configmap-data-to-a-specific-path-in-the-volume" title="subPath">subPath</a>. Then it won&rsquo;t auto-update either.</li>
+</ul>
+<p>Confused yet? Let&rsquo;s dive a bit deeper then :-P<br>
+It kind of makes sense that env vars created from a ConfigMap will not auto-update. They are created along with the deployment and never re-evaluated. So it&rsquo;ll take a <code>rollout restart</code> to get them refreshed. What about <code>subPath</code>, though? Well, as stated in <a href="https://github.com/kubernetes/kubernetes/issues/50345#issuecomment-321346592" title="this">this</a> issue, symlinks are involved. How? Well, as we found out:</p>
+<ul>
+<li>you mount a configmap that would create a file, e.g <code>app_params.yml</code> as a volume to a path in the container, e.g <code>/mnt/myconfig</code></li>
+<li>in that path a subfolder is created, named <code>..data</code> and the contents of your ConfigMap are placed in there</li>
+<li>then a symlink is created from <code>/mnt/myconfig/..data/file_with_content_from_cm</code> to <code>/mnt/myconfig/app_params.yml</code>.</li>
+</ul>
+<p>So your app reads from the symlink.<br>
+When the Configmap is updated, the file contents in <code>..data</code> are updated too and transparently to the app, so does the symlink.<br>
+So your app does have access to the updated file.<br>
+But when you use a subPath, you&rsquo;re not mounting a folder, but a specific file.<br>
+So the <code>..data</code> + <code>symlink</code> mechanism breaks and the contents of the file are not updated.</p>
+<blockquote>
+<p>This mechanism is NOT outlined anywhere that I&rsquo;ve seen in Kubernetes docs. Only in scattered references in StackOverflow (found <a href="https://stackoverflow.com/questions/62776362/k8s-configmap-mounted-inside-symbolic-link-to-data-directory" title="this">this</a> and <a href="https://serverfault.com/questions/1062463/which-kubernetes-configmap-symlink-to-use" title="this">this</a> ). And <a href="https://github.com/search?q=repo%3Akubernetes%2Fkubernetes+..data&amp;type=code" title="Here">here</a>&rsquo;s a search for <code>..data</code> in kubernetes&rsquo; source. So it seems like it&rsquo;s here to stay but verify, then trust.</p>
+</blockquote>
+<p>Cool, so we&rsquo;re good on the ConfigMap part. Does the app know, though? Likely not.<br>
+Because, much like the env vars from ConfigMap, many apps are configured to look for and use config sources at startup only.</p>
+<p>Is there a way to force them to re-configure? Preferably without restarting, right?<br>
+As always, it depends on your language and framework of choice.<br>
+If using Java/SpringBoot, you can enable the <code>/refresh</code> endpoint in your actuator.<br>
+When you reach that endpoint, it&rsquo;ll force any classes you&rsquo;ve annotated with <code>@RefreshScope</code> to re-evaluate and your app will get the fresh config.<br>
+How will you know that a ConfigMap was updated in order to hit <code>/refresh/</code>?<br>
+That&rsquo;s what SpringBoot ConfigWatcher does.</p>
+<blockquote>
+<p>Interesting tidbit: when annotating with <code>@RefreshScope</code> Spring creates a bean and a proxy.<br>
+It uses the proxy so it&rsquo;s free to replace the bean when a change happens. So&hellip; same thing Kubernetes does but on the app side!</p>
+</blockquote>
+<p>But what if (am I tiring you already with the whatifs?) you don&rsquo;t want another new deployment just for watching ConfigMaps?<br>
+Couldn&rsquo;t we get the event of a ConfigMap change within the pod and react there?<br>
+What about using <a href="https://www.baeldung.com/java-nio2-watchservice">Java Nio2 WatchService</a> to watch for filesystem events and then call <code>ContextRefresher</code>&rsquo;s <code>refresh()</code> that does the same thing as the <code>/refresh</code> endpoint internally.<br>
+That&rsquo;ll work, but beware. You cannot expect to catch changes to the actual file (<code>/mnt/myconfig/app_params.yml</code> from above).<br>
+Because of the mechanism outlined, there won&rsquo;t be any.<br>
+You can either</p>
+<ul>
+<li>watch the whole mounted folder. You&rsquo;d catch a few more events and react needlessly, but you&rsquo;d definitely get your result.</li>
+<li>watch the <code>..data</code> subfolder. You&rsquo;d be more precise but also risk a bit with the tight coupling with an undocumented mechanism.</li>
+</ul>
+<p>If you go the second route, you may want to restrict the events you act on (multiple pointless refreshes can&rsquo;t possibly be a good thing, right?). So you might want to watch only for <code>ENTRY_DELETE</code> events of files in <code>..data</code> with a specific pattern.<br>
+Try this one</p>
+<ul>
+<li><code>^\\.{2}\\d{4}_\\d{2}_\\d{2}_\\d{2}_\\d{2}_\\d{2}\\.\\d+$</code></li>
+</ul>
+<blockquote>
+<p>The java specific part was donated by the friend who implemented it. I felt it needed to be here for completeness&rsquo; sake.<br>
+I dislike articles that go far enough to boast, then leave you hanging.<br>
+<a href="https://medium.com/@xcoulon/kubernetes-configmap-hot-reload-in-action-with-viper-d413128a1c9a" title="Here">Here</a> is an implementation in Go for hot-reloading ConfigMaps.<br>
+And <a href="https://blog.techiescamp.com/docs/time-taken-for-configmap-update/" title="here">here</a> is the frequency and relevant setting Kubernetes uses to start serving an updated configmap</p>
+</blockquote>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://details.systematize.it/details/2024-09-21-macos-setup-as-code/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>macos setup as code</span>
+  </a>
+  <a class="next" href="https://details.systematize.it/details/2024-09-15-my-most-used-bash-functions/">
+    <span class="title">Next »</span>
+    <br>
+    <span>My most used bash functions</span>
+  </a>
+</nav>
+
+  </footer><script src="https://utteranc.es/client.js"
+        repo="stelispanagiotakis/details"
+        issue-term="pathname"
+        theme="preferred-color-scheme"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://details.systematize.it/">Tales Of Details</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

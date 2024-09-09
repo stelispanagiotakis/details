@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Extreme Env Parity | Tales Of Details</title>
+<meta name="keywords" content="">
+<meta name="description" content="You need/want a local k8s environment to develop your container images, helm charts etc.
+And you&rsquo;re pedantic about env parity. Your envs should differ only where they absolutely need to.
+So that you can re-use your manifests/charts as usual and when you eventually push to a shared env, you do so with confidence.
+You don&rsquo;t expect issues with the workloads. You can build or pull the containers.
+Persistence may be an issue but your local k8s solution should already have a storage class for you to use.">
+<meta name="author" content="
+stelis">
+<link rel="canonical" href="https://details.systematize.it/details/2025-06-13-extreme-env-parity/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.da3211e5ef867bf2b75fd5a6515cfed7195c011e8ab735694e203810a827097b.css" integrity="sha256-2jIR5e&#43;Ge/K3X9WmUVz&#43;1xlcAR6KtzVpTiA4EKgnCXs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://details.systematize.it/assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://details.systematize.it/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://details.systematize.it/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://details.systematize.it/apple-touch-icon.png">
+<link rel="mask-icon" href="https://details.systematize.it/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://details.systematize.it/details/2025-06-13-extreme-env-parity/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://details.systematize.it/details/2025-06-13-extreme-env-parity/">
+  <meta property="og:site_name" content="Tales Of Details">
+  <meta property="og:title" content="Extreme Env Parity">
+  <meta property="og:description" content="You need/want a local k8s environment to develop your container images, helm charts etc.
+And you’re pedantic about env parity. Your envs should differ only where they absolutely need to.
+So that you can re-use your manifests/charts as usual and when you eventually push to a shared env, you do so with confidence.
+You don’t expect issues with the workloads. You can build or pull the containers.
+Persistence may be an issue but your local k8s solution should already have a storage class for you to use.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="details">
+    <meta property="article:published_time" content="2025-06-13T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-06-13T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Extreme Env Parity">
+<meta name="twitter:description" content="You need/want a local k8s environment to develop your container images, helm charts etc.
+And you&rsquo;re pedantic about env parity. Your envs should differ only where they absolutely need to.
+So that you can re-use your manifests/charts as usual and when you eventually push to a shared env, you do so with confidence.
+You don&rsquo;t expect issues with the workloads. You can build or pull the containers.
+Persistence may be an issue but your local k8s solution should already have a storage class for you to use.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Details",
+      "item": "https://details.systematize.it/details/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Extreme Env Parity",
+      "item": "https://details.systematize.it/details/2025-06-13-extreme-env-parity/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Extreme Env Parity",
+  "name": "Extreme Env Parity",
+  "description": "You need/want a local k8s environment to develop your container images, helm charts etc.\nAnd you\u0026rsquo;re pedantic about env parity. Your envs should differ only where they absolutely need to.\nSo that you can re-use your manifests/charts as usual and when you eventually push to a shared env, you do so with confidence.\nYou don\u0026rsquo;t expect issues with the workloads. You can build or pull the containers.\nPersistence may be an issue but your local k8s solution should already have a storage class for you to use.\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "You need/want a local k8s environment to develop your container images, helm charts etc.\nAnd you’re pedantic about env parity. Your envs should differ only where they absolutely need to.\nSo that you can re-use your manifests/charts as usual and when you eventually push to a shared env, you do so with confidence.\nYou don’t expect issues with the workloads. You can build or pull the containers.\nPersistence may be an issue but your local k8s solution should already have a storage class for you to use.\nThe interesting part come when considering DNS and certificates.\nThe scene:\nYou have a backend service and a fronted service that you deploy to k8s for PROD.\nThey need access to a postgres db and an S3 bucket\nYou need to access the frontend via HTTPS\nFor DNS for your local machine, you can hack it into your /etc/hosts.\nNow, from your browser you can access your s3 service ( say minio for example) via s3.mylocal.k8s\nHow about HTTPS? mkcert is there for you. Create a CA, trust it, get a certificate, load it onto your ingresses.\nBut within the cluster? How can the backend access the S3 service with HTTPS?\nDNS that resolves 127.0.0.1 s3.mylocal.k8s does not cut it there.\nAnd also the cert ( if we could get to the service to see it) will not be trusted.\nSo?\nYou could play with the backend pod’s DNS settings etc but that’s more of a hack in my opinion and it deviates from whatever you’re doing in the proper envs.\nThe best way I’ve found to get this done is to actually edit coredns to serve the proper records, pointing s3.mylocal.k8s to your ingress controller.\nkubectl -n kube-system edit cm coredns\nand there append\nrewrite name s3.mylocal.k8s traefik.traefik.svc.cluster.local and restart the coredns deployment.\nThat should take care of DNS in a civilized manner.\nHow about trusting the certs within the backend service?\nYou could mount the certificate in the pods and do an update-ca-certificates to trust them ( or even bake them into the dev docker images) but that’s too much deviation for my OCD.\nWhat I ended up doing :\nFirst of all make sure my ingress serves the fullchain cert.\n# make sure the cert is first, CA is second cat mycert.pem myRootCA.pem \u003e full.pem kubectl create secret tls my-full-secret --key=./mykey.pem --cert=./full.pem Then override the entrypoint of the backend and use openssl to get the full chain certificate served by my ingress.\nAnd finally run update-ca-certificates to trust it.\nspec: containers: - command: - sh args: - -c - apk add openssl \u0026\u0026 cd /usr/local/share/ca-certificates \u0026\u0026 openssl s_client -showcerts -verify 5 -connect s3.mylocal.k8s:443 \u003c /dev/null | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/{ if(/BEGIN CERTIFICATE/){a++}; out=\"cert\"a\".pem\"; print \u003eout}' \u0026\u0026 update-ca-certificates \u0026\u0026 /entrypoint.sh Of course , overriding the command your backend runs is a deviation in itself.\nBut it’s the least invasive one I could find .\nIf one were going into politics, they could argue that it doesn’t break env parity, it restores it.\nBut we ain’t about that here :-)\n",
+  "wordCount" : "508",
+  "inLanguage": "en",
+  "datePublished": "2025-06-13T00:00:00Z",
+  "dateModified": "2025-06-13T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": {"email":"stelis@systematize.it","name":"stelis"}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://details.systematize.it/details/2025-06-13-extreme-env-parity/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tales Of Details",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://details.systematize.it/assets/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://details.systematize.it/" accesskey="h" title="Tales Of Details (Alt + H)">Tales Of Details</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://details.systematize.it/">Home</a>&nbsp;»&nbsp;<a href="https://details.systematize.it/details/">Details</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Extreme Env Parity
+    </h1>
+    <div class="post-meta"><span title='2025-06-13 00:00:00 +0000 UTC'>June 13, 2025</span>&nbsp;·&nbsp;<span>
+<a href="mailto:stelis@systematize.it">stelis</a></span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>You need/want a local k8s environment to develop your container images, helm charts etc.<br>
+And you&rsquo;re pedantic about env parity. Your envs should differ only where they absolutely need to.<br>
+So that you can re-use your manifests/charts as usual and when you eventually push to a shared env, you do so with confidence.</p>
+<p>You don&rsquo;t expect issues with the workloads. You can build or pull the containers.<br>
+Persistence may be an issue but your local k8s solution should already have a storage class for you to use.</p>
+<p>The interesting part come when considering DNS and certificates.</p>
+<p>The scene:</p>
+<ul>
+<li>
+<p>You have a backend service and a fronted service that you deploy to k8s for PROD.</p>
+</li>
+<li>
+<p>They need access to a postgres db and an S3 bucket</p>
+</li>
+<li>
+<p>You need to access the frontend via HTTPS</p>
+</li>
+</ul>
+<p>For DNS for your local machine, you can hack it into your <code>/etc/hosts</code>.<br>
+Now, from your browser you can access your s3 service ( say minio for example) via <code>s3.mylocal.k8s</code><br>
+How about HTTPS? <code>mkcert</code> is there for you. Create a CA, trust it, get a certificate, load it onto your ingresses.</p>
+<p>But within the cluster? How can the backend access the S3 service with HTTPS?<br>
+DNS that resolves <code>127.0.0.1 s3.mylocal.k8s</code> does not cut it there.<br>
+And also the cert ( if we could get to the service to see it) will not be trusted.<br>
+So?</p>
+<p>You could play with the backend pod&rsquo;s DNS settings etc but that&rsquo;s more of a hack in my opinion and it deviates from whatever you&rsquo;re doing in the proper envs.<br>
+The best way I&rsquo;ve found to get this done is to actually edit coredns to serve the proper records, pointing <code>s3.mylocal.k8s</code> to your ingress controller.</p>
+<p><code>kubectl -n kube-system edit cm coredns</code></p>
+<p>and there append</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>rewrite name s3.mylocal.k8s traefik.traefik.svc.cluster.local
+</span></span></code></pre></div><p>and restart the coredns deployment.</p>
+<p>That should take care of DNS in a civilized manner.</p>
+<p>How about trusting the certs within the backend service?</p>
+<p>You could mount the certificate in the pods and do an <code>update-ca-certificates</code> to trust them ( or even bake them into the <code>dev</code> docker images) but that&rsquo;s too much deviation for my OCD.</p>
+<p>What I ended up doing :<br>
+First of all make sure my ingress serves the fullchain cert.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># make sure the cert is first, CA is second</span>
+</span></span><span style="display:flex;"><span>cat mycert.pem myRootCA.pem &gt; full.pem
+</span></span><span style="display:flex;"><span>kubectl create secret tls my-full-secret --key<span style="color:#f92672">=</span>./mykey.pem --cert<span style="color:#f92672">=</span>./full.pem
+</span></span></code></pre></div><p>Then override the entrypoint of the backend and use <code>openssl</code> to get the full chain certificate served by my ingress.<br>
+And finally run <code>update-ca-certificates</code> to trust it.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    spec:
+</span></span><span style="display:flex;"><span>      containers:
+</span></span><span style="display:flex;"><span>      - command:
+</span></span><span style="display:flex;"><span>        - sh
+</span></span><span style="display:flex;"><span>        args:
+</span></span><span style="display:flex;"><span>        - -c
+</span></span><span style="display:flex;"><span>        - apk add openssl
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&amp;&amp;</span> cd /usr/local/share/ca-certificates
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&amp;&amp;</span> openssl s_client -showcerts -verify <span style="color:#ae81ff">5</span> -connect s3.mylocal.k8s:443 &lt; /dev/null | awk <span style="color:#e6db74">&#39;/BEGIN CERTIFICATE/,/END CERTIFICATE/{ if(/BEGIN CERTIFICATE/){a++}; out=&#34;cert&#34;a&#34;.pem&#34;; print &gt;out}&#39;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&amp;&amp;</span> update-ca-certificates
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&amp;&amp;</span> /entrypoint.sh
+</span></span></code></pre></div><p>Of course , overriding the command your backend runs is a deviation in itself.<br>
+But it&rsquo;s the least invasive one I could find .<br>
+If one were going into politics, they could argue that it doesn&rsquo;t break env parity, it restores it.<br>
+But we ain&rsquo;t about that here :-)</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://details.systematize.it/details/2025-11-07-the-triangle-of-conscience/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>The Triangle of Conscience</span>
+  </a>
+  <a class="next" href="https://details.systematize.it/details/2025-04-19-cheap-thrills/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Cheap Thrills</span>
+  </a>
+</nav>
+
+  </footer><script src="https://utteranc.es/client.js"
+        repo="stelispanagiotakis/details"
+        issue-term="pathname"
+        theme="preferred-color-scheme"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://details.systematize.it/">Tales Of Details</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

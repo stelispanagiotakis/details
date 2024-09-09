@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>AWS, why do you hate me? | Tales Of Details</title>
+<meta name="keywords" content="">
+<meta name="description" content="It&rsquo;s generally a good practice to differentiate between application endpoints than need to be accessible via Internet and endpoints that need to be accessible only internally via your private VPC.
+But what if I need one app&rsquo;s endpoint temporarily accessible to my CICD runner that&rsquo;s not in the VPC?
+e.g a /health to know if the deployment succeeded.
+If you&rsquo;re on AWS, you may be correctly thinking PrivateLink, VPC Endpoints etc
+But that may be overkill for a short-lived connection from our CICD.
+The apps I&rsquo;m interested in run mostly in kubernetes.
+To access an internal endpoint from my local, I&rsquo;d just kubectl port-forward">
+<meta name="author" content="
+stelis">
+<link rel="canonical" href="https://details.systematize.it/details/2024-08-26-aws-why-do-you-hate-me/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.da3211e5ef867bf2b75fd5a6515cfed7195c011e8ab735694e203810a827097b.css" integrity="sha256-2jIR5e&#43;Ge/K3X9WmUVz&#43;1xlcAR6KtzVpTiA4EKgnCXs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://details.systematize.it/assets/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://details.systematize.it/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://details.systematize.it/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://details.systematize.it/apple-touch-icon.png">
+<link rel="mask-icon" href="https://details.systematize.it/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://details.systematize.it/details/2024-08-26-aws-why-do-you-hate-me/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://details.systematize.it/details/2024-08-26-aws-why-do-you-hate-me/">
+  <meta property="og:site_name" content="Tales Of Details">
+  <meta property="og:title" content="AWS, why do you hate me?">
+  <meta property="og:description" content="It’s generally a good practice to differentiate between application endpoints than need to be accessible via Internet and endpoints that need to be accessible only internally via your private VPC.
+But what if I need one app’s endpoint temporarily accessible to my CICD runner that’s not in the VPC?
+e.g a /health to know if the deployment succeeded.
+If you’re on AWS, you may be correctly thinking PrivateLink, VPC Endpoints etc
+But that may be overkill for a short-lived connection from our CICD.
+The apps I’m interested in run mostly in kubernetes.
+To access an internal endpoint from my local, I’d just kubectl port-forward">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="details">
+    <meta property="article:published_time" content="2024-08-26T00:00:00+00:00">
+    <meta property="article:modified_time" content="2024-08-26T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AWS, why do you hate me?">
+<meta name="twitter:description" content="It&rsquo;s generally a good practice to differentiate between application endpoints than need to be accessible via Internet and endpoints that need to be accessible only internally via your private VPC.
+But what if I need one app&rsquo;s endpoint temporarily accessible to my CICD runner that&rsquo;s not in the VPC?
+e.g a /health to know if the deployment succeeded.
+If you&rsquo;re on AWS, you may be correctly thinking PrivateLink, VPC Endpoints etc
+But that may be overkill for a short-lived connection from our CICD.
+The apps I&rsquo;m interested in run mostly in kubernetes.
+To access an internal endpoint from my local, I&rsquo;d just kubectl port-forward">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Details",
+      "item": "https://details.systematize.it/details/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "AWS, why do you hate me?",
+      "item": "https://details.systematize.it/details/2024-08-26-aws-why-do-you-hate-me/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "AWS, why do you hate me?",
+  "name": "AWS, why do you hate me?",
+  "description": "It\u0026rsquo;s generally a good practice to differentiate between application endpoints than need to be accessible via Internet and endpoints that need to be accessible only internally via your private VPC.\nBut what if I need one app\u0026rsquo;s endpoint temporarily accessible to my CICD runner that\u0026rsquo;s not in the VPC?\ne.g a /health to know if the deployment succeeded.\nIf you\u0026rsquo;re on AWS, you may be correctly thinking PrivateLink, VPC Endpoints etc\nBut that may be overkill for a short-lived connection from our CICD.\nThe apps I\u0026rsquo;m interested in run mostly in kubernetes.\nTo access an internal endpoint from my local, I\u0026rsquo;d just kubectl port-forward\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "It’s generally a good practice to differentiate between application endpoints than need to be accessible via Internet and endpoints that need to be accessible only internally via your private VPC.\nBut what if I need one app’s endpoint temporarily accessible to my CICD runner that’s not in the VPC?\ne.g a /health to know if the deployment succeeded.\nIf you’re on AWS, you may be correctly thinking PrivateLink, VPC Endpoints etc\nBut that may be overkill for a short-lived connection from our CICD.\nThe apps I’m interested in run mostly in kubernetes.\nTo access an internal endpoint from my local, I’d just kubectl port-forward\nAnd my CICD already has an AWS user, needed to push images to ECR.\nIf I assign that user to a group that has access to port-forward in the clusters that I need, I’m good right?\nWell, with a little caveat.\nSuppose I build a docker image to run all this from\nI install awscli and kubectl, then supply the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env vars to be used to get access, configure the AWS accounts, get the proper KUBECONFIG, then try to port-forward from Kubernetes\nNope, it will not\n32 memcache.go:265] couldn't get current server API group list: the server has asked for the client to provide credentials Why? Well, let me tell you.\nAs we do for our local setups, we input our user credentials, then assume roles for each env that we need to access\nBut if called via kubectl AND env vars are present, awscli will blatantly disregard our meticulous configuration, and use just the env vars to get access.\nAnd it will fail (because it lacks the AssumeRole config)\nThis is known and it is not a bug. source\nSo what do we do?\nWell, after I configure everything, I just\nexport AWS_ACCESS_KEY_ID=\"\" export AWS_SECRET_ACCESS_KEY=\"\" and what do you know?\nIt freaking works!!!!\n",
+  "wordCount" : "311",
+  "inLanguage": "en",
+  "datePublished": "2024-08-26T00:00:00Z",
+  "dateModified": "2024-08-26T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": {"email":"stelis@systematize.it","name":"stelis"}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://details.systematize.it/details/2024-08-26-aws-why-do-you-hate-me/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Tales Of Details",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://details.systematize.it/assets/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://details.systematize.it/" accesskey="h" title="Tales Of Details (Alt + H)">Tales Of Details</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://details.systematize.it/">Home</a>&nbsp;»&nbsp;<a href="https://details.systematize.it/details/">Details</a></div>
+    <h1 class="post-title entry-hint-parent">
+      AWS, why do you hate me?
+    </h1>
+    <div class="post-meta"><span title='2024-08-26 00:00:00 +0000 UTC'>August 26, 2024</span>&nbsp;·&nbsp;<span>
+<a href="mailto:stelis@systematize.it">stelis</a></span>
+
+</div>
+  </header> 
+  <div class="post-content"><p>It&rsquo;s generally a good practice to differentiate between application endpoints than need to be accessible via Internet and endpoints that need to be accessible only internally via your private VPC.<br>
+But what if I need one app&rsquo;s endpoint temporarily accessible to my CICD runner that&rsquo;s not in the VPC?<br>
+e.g a <em>/health</em> to know if the deployment succeeded.</p>
+<p>If you&rsquo;re on AWS, you may be correctly thinking PrivateLink, VPC Endpoints etc<br>
+But that may be overkill for a short-lived connection from our CICD.<br>
+The apps I&rsquo;m interested in run mostly in kubernetes.<br>
+To access an internal endpoint from my local, I&rsquo;d just <code>kubectl port-forward</code></p>
+<p>And my CICD already has an AWS user, needed to push images to ECR.<br>
+If I assign that user to a group that has access to port-forward in the clusters that I need, I&rsquo;m good right?<br>
+Well, with a little caveat.</p>
+<p>Suppose I build a docker image to run all this from<br>
+I install awscli and kubectl, then supply the <code>AWS_ACCESS_KEY_ID</code> and <code>AWS_SECRET_ACCESS_KEY</code> env vars to be used to get access, configure the AWS accounts, get the proper KUBECONFIG, then try to port-forward from Kubernetes</p>
+<p>Nope, it will not</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ae81ff">32</span> memcache.go:265<span style="color:#f92672">]</span> couldn<span style="color:#960050;background-color:#1e0010">&#39;</span>t get current server API group list: the server has asked <span style="color:#66d9ef">for</span> the client to provide credentials
+</span></span></code></pre></div><p>Why? Well, let me tell you.</p>
+<p>As we do for our local setups, we input our user credentials, then assume roles for each env that we need to access<br>
+But if called via kubectl AND env vars are present, awscli will blatantly disregard our meticulous configuration, and use just the env vars to get access.<br>
+And it will fail (because it lacks the AssumeRole config)<br>
+This is known and it is not a bug. <a href="https://github.com/aws/aws-cli/issues/3875">source</a></p>
+<p>So what do we do?<br>
+Well, after I configure everything, I just</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>export AWS_ACCESS_KEY_ID<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>export AWS_SECRET_ACCESS_KEY<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>
+</span></span></code></pre></div><p>and what do you know?<br>
+It freaking works!!!!</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://details.systematize.it/details/2024-08-27-s3-object-count-shenanigans/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>S3 Object Count shenanigans</span>
+  </a>
+  <a class="next" href="https://details.systematize.it/details/2024-08-26-bash-rocks-it-also-bombs-d/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Bash rocks! It also bombs :-D</span>
+  </a>
+</nav>
+
+  </footer><script src="https://utteranc.es/client.js"
+        repo="stelispanagiotakis/details"
+        issue-term="pathname"
+        theme="preferred-color-scheme"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://details.systematize.it/">Tales Of Details</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
